@@ -1,0 +1,16 @@
+# Private reference material (mail exports, documents, datasets)
+/reference/
+
+# Local runtime state
+/Project1/v1/system/current_task.yaml
+/Project1/v1/Agent/**/memory/current.json
+/Project1/v1/Agent/**/record/history.jsonl
+
+# Secrets and local tool output
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db

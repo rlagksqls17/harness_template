@@ -1,0 +1,28 @@
+{
+  "id": "active_agent_inspection",
+  "purpose": "현재 업무 상태를 최신 근거에 따라 읽기 전용으로 파악하고 짧게 정리한다.",
+  "roles": [
+    "current_work_status"
+  ],
+  "permissions": {
+    "allowed": [
+      "inspect_current_state_read_only",
+      "summarize_current_evidence",
+      "identify_unknown_state",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "mutate_inspected_state",
+      "infer_live_state_from_stale_evidence",
+      "modify_role_registry",
+      "modify_role_definitions",
+      "claim_status_without_current_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "catchup",
+    "nba",
+    "shower"
+  ],
+  "status": "active"
+}

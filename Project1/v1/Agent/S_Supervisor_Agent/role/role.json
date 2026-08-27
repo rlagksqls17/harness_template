@@ -1,0 +1,42 @@
+{
+  "id": "S_Supervisor_Agent",
+  "purpose": "사용자의 명시적 승인에 따라 Agent 역할 정의와 registry를 변경하고 변경 결과를 검증·복구한다.",
+  "roles": [
+    "role_registry_governance",
+    "role_contract_governance",
+    "role_change_validation",
+    "role_change_rollback"
+  ],
+  "permissions": {
+    "allowed": [
+      "propose_role_change",
+      "modify_role_registry_after_user_approval",
+      "modify_role_definitions_after_user_approval",
+      "upgrade_paperthin_catalog_after_user_approval",
+      "validate_and_rollback_role_change",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "modify_immutable_governance",
+      "expand_own_authority",
+      "apply_change_without_user_approval",
+      "auto_invoke_user_only_skill",
+      "execute_operational_job_work",
+      "alter_task_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "detool",
+    "hate",
+    "macrothink",
+    "mandela",
+    "prism",
+    "re0",
+    "re0-upgrade",
+    "reorder",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": "disabled"
+}

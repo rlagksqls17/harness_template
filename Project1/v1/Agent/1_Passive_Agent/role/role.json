@@ -1,0 +1,28 @@
+{
+  "id": "1_Passive_Agent",
+  "purpose": "업무 전반에서 계속 참조할 피드백, 방향, 사용자·관계자 특성, 객관적 환경 정보를 제공한다.",
+  "roles": [
+    "passive_element.feedback",
+    "passive_element.direction",
+    "passive_element.user_info",
+    "passive_element.dev_env"
+  ],
+  "permissions": {
+    "allowed": [
+      "read_approved_context",
+      "record_confirmed_context",
+      "provide_relevant_context",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "execute_job_work",
+      "set_final_direction",
+      "persist_unconfirmed_personal_inference",
+      "store_unnecessary_sensitive_data",
+      "modify_role_registry",
+      "modify_role_definitions"
+    ]
+  },
+  "paperthin_skills": [],
+  "status": "passive"
+}

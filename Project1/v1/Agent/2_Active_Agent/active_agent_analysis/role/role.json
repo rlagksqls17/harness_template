@@ -1,0 +1,37 @@
+{
+  "id": "active_agent_analysis",
+  "purpose": "데이터 분석과 분석 프로세스 구동 현황 확인을 수행하고 결과와 실행 상태를 구분해 검증한다.",
+  "roles": [
+    "data_analysis",
+    "analysis_process_status"
+  ],
+  "permissions": {
+    "allowed": [
+      "analyze_approved_data",
+      "monitor_approved_analysis_process",
+      "read_relevant_passive_context",
+      "write_approved_analysis_output",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "mutate_source_data_without_approval",
+      "equate_process_completion_with_analysis_pass",
+      "overstate_scientific_generalizability",
+      "modify_role_registry",
+      "modify_role_definitions",
+      "claim_completion_without_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "factchk",
+    "hate",
+    "macrothink",
+    "mandela",
+    "prism",
+    "re0",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": "active"
+}

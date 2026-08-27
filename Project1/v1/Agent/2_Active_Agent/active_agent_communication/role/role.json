@@ -1,0 +1,37 @@
+{
+  "id": "active_agent_communication",
+  "purpose": "AI 소통, 직원 구두 소통, 직원 메일 소통 업무를 준비부터 검증과 기록까지 수행한다.",
+  "roles": [
+    "ai_communication",
+    "employee_oral_communication",
+    "employee_email_communication"
+  ],
+  "permissions": {
+    "allowed": [
+      "read_approved_communication_references",
+      "draft_messages",
+      "prepare_oral_brief",
+      "communicate_with_ai",
+      "verify_message_against_task",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "send_external_message_without_approval",
+      "invent_sender_intent",
+      "expose_private_reference_data",
+      "modify_role_registry",
+      "modify_role_definitions",
+      "claim_completion_without_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "debloat",
+    "dedash",
+    "detool",
+    "factchk",
+    "re0",
+    "shower",
+    "sip"
+  ],
+  "status": "active"
+}

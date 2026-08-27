@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "input_contract": {
+    "default_input": "natural_language",
+    "yaml_usage": "internal_working_state",
+    "steering_requires_yaml": false,
+    "urgent_signals": [
+      "stop",
+      "scope_change",
+      "direction_change",
+      "exclude_path"
+    ],
+    "preserve_unaffected_fixed_values": true,
+    "complexity_scale": [
+      "simple",
+      "medium",
+      "complex",
+      "ultra"
+    ],
+    "input_detail_policy": "increase_only_when_complexity_or_risk_requires_it",
+    "question_policy": "ask_only_when_the_answer_changes_result_scope_authority_or_safety"
+  },
+  "workflow": {
+    "agent_partition": "job_only",
+    "stages_are_internal": true,
+    "stages": {
+      "preparation": "업무 전 필요한 정보, 참조 경로, 제약과 현재 상태를 확인한다.",
+      "execution": "승인된 범위에서 실제 업무를 수행한다.",
+      "verification": "완료 기준과 증거로 결과를 검증하며 가장 중요한 단계로 취급한다.",
+      "completion": "결과를 보고하고 기록한다. 발표자료와 회의자료는 요청된 경우에만 만든다."
+    }
+  },
+  "authority": {
+    "result_goal_modes": [
+      "user_defined",
+      "ai_proposed"
+    ],
+    "default_result_goal_mode": "user_defined",
+    "role_registry_owner": "S_Supervisor_Agent",
+    "role_change_requires_user_approval": true,
+    "supervisor_activation": "user_request_only"
+  },
+  "verification": {
+    "required_before_completion_claim": true,
+    "separate_verifier_for_changes": true,
+    "pass_requires_evidence": true,
+    "paperthin_is_not_a_verifier": true
+  },
+  "reporting": {
+    "summary_order": [
+      "result",
+      "meaning",
+      "user_action"
+    ],
+    "details_policy": "record_then_answer_on_request",
+    "must_distinguish": [
+      "done",
+      "not_done",
+      "not_verified"
+    ]
+  }
+}

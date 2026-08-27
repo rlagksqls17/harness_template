@@ -1,0 +1,42 @@
+{
+  "id": "active_agent_development",
+  "purpose": "웹, 파이프라인, 현장 설치·구동 개발 업무를 승인된 범위에서 수행하고 검증한다.",
+  "roles": [
+    "web_development",
+    "pipeline_development",
+    "field_installation_operation"
+  ],
+  "permissions": {
+    "allowed": [
+      "inspect_approved_scope",
+      "modify_approved_scope",
+      "run_approved_checks",
+      "read_relevant_passive_context",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "change_protected_scope_without_approval",
+      "mutate_external_system_without_authority",
+      "overwrite_existing_results_without_approval",
+      "modify_role_registry",
+      "modify_role_definitions",
+      "claim_completion_without_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "detool",
+    "factchk",
+    "hate",
+    "macrothink",
+    "mandela",
+    "re0",
+    "re0-git",
+    "re0-merge",
+    "re0-release",
+    "re0-work",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": "active"
+}

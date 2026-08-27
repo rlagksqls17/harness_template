@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "active_group": {
+    "path": "Agent/2_Active_Agent",
+    "is_agent": false
+  },
+  "active_job_count": 6,
+  "role_registry_owner": "S_Supervisor_Agent",
+  "user_approval_required": true,
+  "agents": [
+    {
+      "id": "0_Prompt_Agent",
+      "path": "Agent/0_Prompt_Agent",
+      "kind": "prompt",
+      "status": "active"
+    },
+    {
+      "id": "1_Passive_Agent",
+      "path": "Agent/1_Passive_Agent",
+      "kind": "passive",
+      "status": "passive"
+    },
+    {
+      "id": "active_agent_communication",
+      "path": "Agent/2_Active_Agent/active_agent_communication",
+      "kind": "active",
+      "status": "active"
+    },
+    {
+      "id": "active_agent_development",
+      "path": "Agent/2_Active_Agent/active_agent_development",
+      "kind": "active",
+      "status": "active"
+    },
+    {
+      "id": "active_agent_analysis",
+      "path": "Agent/2_Active_Agent/active_agent_analysis",
+      "kind": "active",
+      "status": "active"
+    },
+    {
+      "id": "active_agent_inspection",
+      "path": "Agent/2_Active_Agent/active_agent_inspection",
+      "kind": "active",
+      "status": "active"
+    },
+    {
+      "id": "active_agent_document",
+      "path": "Agent/2_Active_Agent/active_agent_document",
+      "kind": "active",
+      "status": "active"
+    },
+    {
+      "id": "active_agent_schedule",
+      "path": "Agent/2_Active_Agent/active_agent_schedule",
+      "kind": "active",
+      "status": "deferred"
+    },
+    {
+      "id": "3_Improvement_Agent",
+      "path": "Agent/3_Improvement_Agent",
+      "kind": "improvement",
+      "status": "conditional"
+    },
+    {
+      "id": "S_Supervisor_Agent",
+      "path": "Agent/S_Supervisor_Agent",
+      "kind": "supervisor",
+      "status": "disabled"
+    }
+  ]
+}

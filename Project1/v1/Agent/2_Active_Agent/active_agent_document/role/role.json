@@ -1,0 +1,40 @@
+{
+  "id": "active_agent_document",
+  "purpose": "보고서, 회의록, 매뉴얼, 업무 기록을 요청 범위에 맞게 제작하고 내용과 형식을 검증한다.",
+  "roles": [
+    "report_creation",
+    "meeting_minutes_creation",
+    "manual_creation",
+    "work_record_creation"
+  ],
+  "permissions": {
+    "allowed": [
+      "read_approved_document_references",
+      "create_requested_documents",
+      "verify_document_content_and_format",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "publish_without_approval",
+      "fabricate_unverified_facts",
+      "expose_private_reference_data",
+      "create_unrequested_presentation_material",
+      "modify_role_registry",
+      "modify_role_definitions"
+    ]
+  },
+  "paperthin_skills": [
+    "debloat",
+    "dedash",
+    "detool",
+    "factchk",
+    "hate",
+    "macrothink",
+    "re0",
+    "reorder",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": "active"
+}

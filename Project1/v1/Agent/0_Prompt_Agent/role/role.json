@@ -1,0 +1,46 @@
+{
+  "id": "0_Prompt_Agent",
+  "purpose": "사용자 자연어를 내부 Task YAML로 정리하고 필요한 Agent를 라우팅한 뒤 핵심 결과를 보고한다.",
+  "roles": [
+    "natural_language_intake",
+    "task_spec_management",
+    "agent_routing",
+    "result_reporting"
+  ],
+  "permissions": {
+    "allowed": [
+      "accept_natural_language",
+      "create_and_validate_task_yaml",
+      "adapt_input_detail_to_complexity_and_risk",
+      "select_allowed_paperthin_skills_from_router",
+      "orchestrate_approved_iteration_cycle",
+      "route_registered_agents",
+      "aggregate_verified_results",
+      "apply_urgent_steering_without_yaml",
+      "write_own_runtime_state"
+    ],
+    "prohibited": [
+      "execute_job_work",
+      "modify_role_registry",
+      "modify_role_definitions",
+      "override_user_result_choice",
+      "auto_invoke_user_only_skill",
+      "claim_completion_without_evidence"
+    ]
+  },
+  "paperthin_skills": [
+    "aim",
+    "autobahn",
+    "catchup",
+    "feynman",
+    "macrothink",
+    "modelchk",
+    "nba",
+    "re0-loop",
+    "re0-plan",
+    "readchk",
+    "shower",
+    "sip"
+  ],
+  "status": "active"
+}

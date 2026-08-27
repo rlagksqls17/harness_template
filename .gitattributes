@@ -1,0 +1,6 @@
+* text=auto
+Project1/v1/.agents/skills/**/SKILL.md text eol=lf
+Project1/v1/third_party/paperthin/* text eol=lf
+Project1/v1/system/*.json text eol=lf
+Project1/v1/Agent/**/role.json text eol=lf
+Project1/v1/tools/*.py text eol=lf
