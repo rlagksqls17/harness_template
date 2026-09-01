@@ -1,0 +1,59 @@
+{
+  "id": "active_agent_development",
+  "purpose": "웹·파이프라인·현장 설치/구동 개발을 증거와 복구 경계 안에서 수행한다.",
+  "roles": [
+    "web_development",
+    "pipeline_development",
+    "field_installation_operation"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "stage_contract": {
+      "preparation": [
+        "inspect repository, branch, commit, interfaces, DB, UI, environment and protected assets",
+        "pipeline checks inputs, sample IDs, parameters, parser, references, mounts, image, expected outputs and dry-run plan",
+        "field work checks closed network, OS, Docker, GPU, disk, offline packages, checksums, services and rollback"
+      ],
+      "execution": [
+        "make the smallest authorized change",
+        "preserve protected sources, results, images and running jobs",
+        "separate local reversible work from approved external operations"
+      ],
+      "verification": [
+        "web: static, unit, integration, API, DB and render checks are labeled separately",
+        "pipeline: input contract, parser, mounts, expected manifest, dry-run and representative end-to-end checks",
+        "field: actual runtime, service, API and sample output; static inspection is not execution PASS"
+      ],
+      "completion": [
+        "record changed files, version, commands, evidence, remaining limits and rollback",
+        "commit or push only when explicitly approved"
+      ]
+    },
+    "permissions": {
+      "local_reversible": "within_user_scope",
+      "server_db_commit_push": "user_approval_required",
+      "destructive": false,
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [
+    "detool",
+    "factchk",
+    "hate",
+    "macrothink",
+    "mandela",
+    "re0",
+    "re0-git",
+    "re0-merge",
+    "re0-release",
+    "re0-work",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

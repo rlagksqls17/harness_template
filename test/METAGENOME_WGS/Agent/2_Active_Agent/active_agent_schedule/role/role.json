@@ -1,0 +1,41 @@
+{
+  "id": "active_agent_schedule",
+  "purpose": "일정 추가·수정·삭제·확인을 자연어 초안으로 정리한다.",
+  "roles": [
+    "schedule_add",
+    "schedule_update",
+    "schedule_delete",
+    "schedule_check"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "stage_contract": {
+      "preparation": [
+        "identify title, time zone, start/end, participants, recurrence, reminders, conflicts and approval"
+      ],
+      "execution": [
+        "produce a proposed calendar action only",
+        "do not call external calendar services"
+      ],
+      "verification": [
+        "check dates, time zone, participants, conflicts and requested operation",
+        "draft is never reported as applied"
+      ],
+      "completion": [
+        "return proposed change and required user action",
+        "record no external mutation"
+      ]
+    },
+    "permissions": {
+      "draft_only": true,
+      "external_calendar_mutation": false,
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [],
+  "status": {
+    "implementation": "deferred",
+    "default_enabled": false
+  }
+}

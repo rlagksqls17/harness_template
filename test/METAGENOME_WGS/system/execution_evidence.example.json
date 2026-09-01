@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "evidence_id": "example-run-001",
+  "task_id": "same-as-task-spec",
+  "task_revision": 1,
+  "task_digest": "same-as-current-task-spec-digest",
+  "kind": "actual_execution",
+  "execution_complete": true,
+  "worker_actor": "approved-worker-id",
+  "worker_signature_path": "../records/example-worker-signature.sig",
+  "artifacts": [
+    {
+      "path": "C:/absolute/path/to/example-result.txt",
+      "sha256": "replace-with-actual-sha256",
+      "size": 0,
+      "role": "task_deliverable",
+      "task_id": "same-as-task-spec",
+      "task_revision": 1,
+      "task_digest": "same-as-current-task-spec-digest"
+    }
+  ],
+  "artifact_manifest_digest": "replace-with-canonical-artifact-list-sha256",
+  "runtime_verifier_receipt": "../records/runtime-verifier-receipt.json",
+  "scientific_verifier_receipt": null,
+  "ledger_path": "../records/ledger.jsonl",
+  "ledger_entry_id": "same-entry-in-ledger"
+}

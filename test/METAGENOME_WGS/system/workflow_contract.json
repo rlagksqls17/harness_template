@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "message_relations": ["new_task", "correction", "addition", "direct_dissatisfaction"],
+  "steering": {
+    "correction_order": ["cancel_prior_execution", "discard_stale_output", "increment_revision", "route_replacement"],
+    "addition_order": ["pause_affected_scope", "merge_condition", "increment_revision", "revalidate_affected_scope"],
+    "direct_dissatisfaction_order": ["invalidate", "skip_agents", "skip_passive", "skip_recording", "fallback_default_codex"]
+  },
+  "stage_model": {
+    "stages": ["preparation", "execution", "verification", "completion"],
+    "statuses": ["pending", "running", "blocked", "passed", "failed", "stale", "cancelled"]
+  },
+  "analysis_modes": {
+    "data_analysis": "scientific or quantitative analysis of approved data",
+    "analysis_process_status": "runtime, log, resource, artifact-integrity and job-state inspection",
+    "must_not_substitute_for_each_other": true
+  },
+  "record_policy": {
+    "explanation_only": "no_file_without_explicit_request",
+    "operational_task": "record_only_confirmed_facts_and_evidence",
+    "raw_conversation_copy": false
+  },
+  "report_policy": {
+    "default_lines": "3-8",
+    "claim_states": ["not_started", "running", "execution_complete", "verification_pass", "not_verified"],
+    "mixed_claim_states_prohibited": true
+  }
+}
+

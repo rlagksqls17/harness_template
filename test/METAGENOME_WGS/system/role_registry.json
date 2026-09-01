@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "active_group_is_agent": false,
+  "active_agent_count": 6,
+  "role_registry_owner": "supervisor_agent",
+  "agents": [
+    {"id": "prompt_agent", "kind": "prompt", "path": "Agent/0_Prompt_Agent/role/role.json", "status": "active"},
+    {"id": "passive_agent", "kind": "passive", "path": "Agent/1_Passive_Agent/role/role.json", "status": "passive"},
+    {"id": "active_agent_communication", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_communication/role/role.json", "status": "active"},
+    {"id": "active_agent_development", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_development/role/role.json", "status": "active"},
+    {"id": "active_agent_analysis", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_analysis/role/role.json", "status": "active"},
+    {"id": "active_agent_inspection", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_inspection/role/role.json", "status": "active"},
+    {"id": "active_agent_document", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_document/role/role.json", "status": "active"},
+    {"id": "active_agent_schedule", "kind": "active", "path": "Agent/2_Active_Agent/active_agent_schedule/role/role.json", "status": "deferred"},
+    {"id": "improvement_agent", "kind": "improvement", "path": "Agent/3_Improvement_Agent/role/role.json", "status": "conditional"},
+    {"id": "supervisor_agent", "kind": "supervisor", "path": "Agent/S_Supervisor_Agent/role/role.json", "status": "disabled"}
+  ],
+  "legacy_unregistered_roles": ["Agent/2_Active_Agent/active_agent_research"],
+  "mutation_policy": {
+    "sole_mutator": "supervisor_agent",
+    "user_approval_required": true,
+    "fresh_context_validation_required": true,
+    "candidate_before_activation": true
+  }
+}
+

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "status": "CANDIDATE",
+  "epoch": 1,
+  "build_id": "2026-09-01-metagenome-r1",
+  "updated_at": "2026-09-01T23:00:00+09:00",
+  "activation": "fresh_supervisor_and_explicit_user_operation_only",
+  "last_invalidation_reason": "direct_dissatisfaction_rebuild",
+  "supervisor_score": null
+}
+

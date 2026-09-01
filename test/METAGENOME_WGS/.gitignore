@@ -1,0 +1,23 @@
+# Runtime state (created by tools/init_runtime.py)
+system/current_task.yaml
+system/system_state.json
+Agent/**/memory/current.json
+Agent/**/record/history.jsonl
+records/*.jsonl
+reference/reference_registry.local.json
+reviews/*.json
+supervisor_evidence/
+
+# Credentials, secrets, caches, and generated files
+.env
+.env.*
+*.pem
+*.key
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Private source material belongs outside the template.
+reference/mail/
+reference/record/
+reference/private/

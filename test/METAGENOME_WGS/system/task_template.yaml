@@ -1,0 +1,47 @@
+schema_version: "1.0.0"
+task_id: null
+revision: 1
+message_relation: new_task
+goal:
+  mode: user_defined
+  requested_result: null
+  ai_proposal: null
+  accepted_by_user: false
+classification:
+  job: null
+  roles: []
+  complexity:
+    axes: {scope: 0, uncertainty: 0, dependencies: 0, verification: 0, persistence: 0}
+    level: C1
+  risk: R0
+  urgency: U0
+execution:
+  stage_mode: compressed
+  current_stage: preparation
+  stages:
+    preparation: {status: pending, acceptance: [], evidence: []}
+    execution: {status: pending, acceptance: [], evidence: []}
+    verification: {status: pending, acceptance: [], evidence: [], independent_verifier: null}
+    completion: {status: pending, acceptance: [], evidence: []}
+  assigned_agents: []
+  allowed_actions: []
+  forbidden_actions: []
+context:
+  fixed: {}
+  passive_requests: []
+  reference_ids: []
+questions: []
+approval:
+  required: false
+  actions: []
+  status: not_required
+revision_control:
+  supersedes: null
+  affected_scope: []
+  stale_outputs: []
+report:
+  result: null
+  meaning: []
+  user_action: null
+  artifacts: []
+

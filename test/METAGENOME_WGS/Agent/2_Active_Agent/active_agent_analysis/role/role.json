@@ -1,0 +1,53 @@
+{
+  "id": "active_agent_analysis",
+  "purpose": "제공된 데이터와 분석 프로세스/산출물의 상태를 과학적 검증과 구분하여 분석한다.",
+  "roles": [
+    "data_analysis",
+    "analysis_process_status"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "stage_contract": {
+      "preparation": [
+        "define question, units, sample/cohort, metadata, data source, expected outputs and QC",
+        "for processes identify job, PID/container, logs, resources, outputs and restart boundary",
+        "define execution-complete, output-integrity and scientific-PASS gates separately"
+      ],
+      "execution": [
+        "preserve source data and identifiers",
+        "perform authorized QC/statistical/process inspection",
+        "track missingness, exclusions, transformations and revision"
+      ],
+      "verification": [
+        "data: sample identity, QC, model assumptions, effect, confidence interval, missing data, multiple testing and generalization limits",
+        "process: live process/container/job, log recency, error/OOM/resource scan and output integrity",
+        "never infer biological validity from file existence or command success"
+      ],
+      "completion": [
+        "report findings, evidence, limitations and one next action",
+        "record reproducible inputs, methods, versions and artifact paths"
+      ]
+    },
+    "permissions": {
+      "source_data_read_only": true,
+      "restart_or_server_change": "user_approval_required",
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [
+    "factchk",
+    "hate",
+    "macrothink",
+    "mandela",
+    "prism",
+    "re0",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

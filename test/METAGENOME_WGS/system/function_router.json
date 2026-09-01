@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "selection": "smallest_sufficient_job_set",
+  "routes": [
+    {"job": "communication", "agent": "active_agent_communication", "examples": ["email", "message", "handoff"]},
+    {"job": "development", "agent": "active_agent_development", "examples": ["build", "implement", "fix", "pipeline"]},
+    {"job": "analysis", "agent": "active_agent_analysis", "subroles": ["data_analysis", "analysis_process_status"]},
+    {"job": "inspection", "agent": "active_agent_inspection", "examples": ["current status", "read-only inventory"]},
+    {"job": "document", "agent": "active_agent_document", "examples": ["report", "manual", "artifact"]},
+    {"job": "schedule", "agent": "active_agent_schedule", "examples": ["schedule draft", "reminder draft"]}
+  ],
+  "rules": {
+    "prompt_is_not_worker": true,
+    "passive_context_is_read_only": true,
+    "selection_is_not_execution_evidence": true,
+    "deferred_schedule_produces_draft_only": true,
+    "external_effects_require_separate_approval": true
+  }
+}
+

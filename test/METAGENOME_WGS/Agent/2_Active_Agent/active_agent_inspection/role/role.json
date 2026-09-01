@@ -1,0 +1,45 @@
+{
+  "id": "active_agent_inspection",
+  "purpose": "현재 업무 상황을 읽기 전용 live evidence로 파악하고 한 화면에 정리한다.",
+  "roles": [
+    "current_work_status"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "stage_contract": {
+      "preparation": [
+        "identify exact scope, actors, repositories, servers, jobs, records and evidence timestamps",
+        "separate historical records from live state",
+        "confirm read-only boundary"
+      ],
+      "execution": [
+        "inspect current files, processes, logs, services and handoff records without mutation",
+        "classify planned, running, execution-complete, verification-PASS and user-accepted separately"
+      ],
+      "verification": [
+        "cross-check evidence time, provenance and contradictions",
+        "do not call plans or stale logs current",
+        "mark inaccessible state unknown rather than guessing"
+      ],
+      "completion": [
+        "one-screen status, key issue and exactly one next action",
+        "record evidence pointers and unknowns without creating redundant reports"
+      ]
+    },
+    "permissions": {
+      "read_only": true,
+      "mutation": false,
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [
+    "catchup",
+    "nba",
+    "shower"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

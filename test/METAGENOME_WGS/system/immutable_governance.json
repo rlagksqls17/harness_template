@@ -1,0 +1,54 @@
+{
+  "version": "2.0.0",
+  "input": {
+    "default": "natural_language",
+    "task_spec": "internal_json_only",
+    "urgent_steering_requires_yaml": false
+  },
+  "operation_window_kst": {"start": "08:00", "end_exclusive": "22:00"},
+  "workflow": {
+    "active_agent_count": 6,
+    "active_agents": ["communication", "development", "analysis", "inspection", "document", "schedule"],
+    "stages_are_internal": true,
+    "stages": ["preparation", "execution", "verification", "completion"]
+  },
+  "system_gate": {
+    "direct_dissatisfaction_precedes_agents_passive_and_recording": true,
+    "same_input_action": "invalidate_and_fallback_to_default_codex",
+    "quoted_complaints_and_negative_control_do_not_trigger": true,
+    "correction": "cancel_prior_work_and_replace_with_new_revision",
+    "addition": "merge_into_current_revision",
+    "pre_output_recheck": ["status", "epoch", "task_revision", "execution_evidence"]
+  },
+  "authority": {
+    "final_decision_owner": "user",
+    "prompt_is_coordinator_not_worker": true,
+    "role_registry_owner": "supervisor_agent",
+    "role_change_requires_user_approval_and_fresh_supervisor": true,
+    "no_scope_or_permission_expansion": true
+  },
+  "evidence": {
+    "routing_is_not_agent_execution": true,
+    "artifact_exists_is_not_runtime_execution": true,
+    "dry_run_is_not_scientific_pass": true,
+    "data_analysis_and_analysis_process_status_are_separate": true,
+    "completion_claim_requires_execution_evidence": true,
+    "execution_evidence_requires_task_revision_and_ledger_binding": true,
+    "routing_artifact_and_dry_run_are_not_execution_evidence": true,
+    "scientific_pass_requires_independent_scientific_evidence": true
+  },
+  "external_effects": {
+    "approval_required": ["server_mutation", "docker_mutation", "data_mutation", "message_send", "calendar_mutation", "commit", "push", "delete"],
+    "server_access_explanation_does_not_authorize_connection": true
+  },
+  "report": {
+    "default_lines": "3-8",
+    "order": ["result", "meaning", "next_action"],
+    "explanation_order": ["identity", "execution_actor", "actual_structure"],
+    "explanation_file_creation": "explicit_request_only"
+  },
+  "preservation": {
+    "memory_record_current_task_append_or_keep": true,
+    "delete_or_initialize_existing_runtime": false
+  }
+}

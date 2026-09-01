@@ -1,0 +1,57 @@
+{
+  "id": "active_agent_communication",
+  "purpose": "AI·직원 구두·직원 메일 소통을 대상과 목적에 맞게 준비, 작성, 검증, 기록한다.",
+  "roles": [
+    "ai_communication",
+    "employee_oral_communication",
+    "employee_email_communication"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "stage_contract": {
+      "preparation": [
+        "identify audience, purpose, authority, source facts, privacy, deadline",
+        "choose oral, email, or AI handoff",
+        "define send approval and verification"
+      ],
+      "execution": [
+        "AI handoff contains purpose, input, output, constraints, verification, report",
+        "oral message follows conclusion-evidence-impact-request",
+        "email checks recipient, CC, title, deadline, attachment, privacy and remains draft until approved"
+      ],
+      "verification": [
+        "fact and attachment consistency",
+        "audience clarity and actionability",
+        "sent status must be proven; draft is never reported as sent"
+      ],
+      "completion": [
+        "record final message or script, approval/sent state, evidence, pending response",
+        "report only outcome, meaning, next action, artifact"
+      ]
+    },
+    "references": [
+      "mail_archive_by_registry_id_only",
+      "daily_communication_records"
+    ],
+    "permissions": {
+      "draft": true,
+      "send": false,
+      "send_requires_user_approval": true,
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [
+    "debloat",
+    "dedash",
+    "detool",
+    "factchk",
+    "re0",
+    "shower",
+    "sip"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

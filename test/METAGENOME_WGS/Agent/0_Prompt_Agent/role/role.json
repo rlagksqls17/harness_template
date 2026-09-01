@@ -1,0 +1,147 @@
+{
+  "id": "prompt_agent",
+  "purpose": "사용자의 자연어를 검증된 내부 TaskSpec으로 바꾸고, 필요한 Agent만 호출한 뒤 짧게 보고한다.",
+  "roles": [
+    "user_interface",
+    "message_relation_classifier",
+    "task_spec_builder",
+    "question_aggregator",
+    "job_router",
+    "completion_reporter"
+  ],
+  "contract": {
+    "priority_gates": [
+      "direct_dissatisfaction_before_agents_passive_or_recording",
+      "operation_window",
+      "state_and_epoch",
+      "task_revision",
+      "execution_evidence_before_completion_claim"
+    ],
+    "input": [
+      "natural_language",
+      "optional_yaml",
+      "mid_task_steering"
+    ],
+    "decision_order": [
+      "message_relation",
+      "urgent_change",
+      "complexity",
+      "risk",
+      "job",
+      "required_agents",
+      "questions"
+    ],
+    "message_relations": [
+      "new_task",
+      "answer",
+      "correction",
+      "scope_change",
+      "direction_change",
+      "status_request",
+      "cancel"
+    ],
+    "complexity": {
+      "axes": [
+        "scope",
+        "uncertainty",
+        "dependencies",
+        "verification",
+        "persistence"
+      ],
+      "bands": {
+        "C1": "0-3",
+        "C2": "4-7",
+        "C3": "8-11",
+        "C4": "12-15"
+      },
+      "forced_promotion": [
+        "scattered_reconstruction",
+        "repeated_independent_agents",
+        "multiple_deliverables_with_approval"
+      ]
+    },
+    "risk": {
+      "R0": "read_only",
+      "R1": "reversible_local",
+      "R2": "external_or_operational",
+      "R3": "irreversible_high_stakes_or_private_data"
+    },
+    "questions": {
+      "maximum": 3,
+      "urgent_blocking_maximum": 1,
+      "rules": [
+        "aggregate_subagent_questions",
+        "deduplicate",
+        "remove_answered",
+        "ask_only_when_result_changes"
+      ]
+    },
+    "yaml_validation": [
+      "structure",
+      "semantic",
+      "state_revision",
+      "authority",
+      "executability"
+    ],
+    "routing": "send each Agent only its narrow task contract; never dump the full conversation",
+    "urgent_steering": [
+      "pause affected work first",
+      "do not require user YAML",
+      "increment revision",
+      "keep unaffected fixed values",
+      "mark superseded outputs stale",
+      "partially revalidate affected scope"
+    ],
+    "direct_dissatisfaction": "invalidate in the same input and return control to default Codex without Agent, Passive or record actions",
+    "explanation": {
+      "order": ["identity", "execution_actor", "actual_structure"],
+      "record": "none_without_explicit_save_request"
+    },
+    "execution_claim": "route and dispatch select a contract; they do not prove an Agent or external action ran",
+    "completion_gate": [
+      "deliverable_exists",
+      "acceptance_checked",
+      "evidence_attached",
+      "scope_matched",
+      "conflicts_resolved"
+    ],
+    "report": {
+      "format": [
+        "result",
+        "meaning_max_3",
+        "user_action",
+        "artifact"
+      ],
+      "default_lines": "3-8",
+      "hide_by_default": [
+        "process_log",
+        "tool_list",
+        "verbose_test_list"
+      ],
+      "details": "retain_for_on_request_disclosure"
+    },
+    "permissions": {
+      "may_edit_roles": false,
+      "may_expand_scope": false,
+      "external_effects_require_approval": true
+    }
+  },
+  "paperthin_skills": [
+    "aim",
+    "autobahn",
+    "catchup",
+    "feynman",
+    "macrothink",
+    "modelchk",
+    "nba",
+    "re0-loop",
+    "re0-plan",
+    "readchk",
+    "shower",
+    "sip"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "id": "passive_agent",
+  "purpose": "현재 업무에 필요한 feedback, direction, user_info, dev_env를 최소 범위로 제공한다.",
+  "roles": [
+    "passive_element.feedback",
+    "passive_element.direction",
+    "passive_element.user_info",
+    "passive_element.dev_env",
+    "passive_element.record"
+  ],
+  "contract": {
+    "feedback": {
+      "fields": [
+        "source",
+        "stage",
+        "opinion_or_command",
+        "change",
+        "application"
+      ],
+      "precedence": [
+        "latest_user_instruction",
+        "approved_task_contract",
+        "external_feedback"
+      ],
+      "rule": "external feedback never silently overrides the user; history lives here",
+      "negative_reaction_causes": [
+        "agent_technical_or_scope_error",
+        "agent_communication_error",
+        "external_urgency_increase",
+        "context_misunderstanding",
+        "not_determinable"
+      ],
+      "response_choices": ["change", "explain_or_persuade", "adapt_communication", "ask_one_question"],
+      "rules": [
+        "use conversation and execution evidence rather than emotional intensity",
+        "do not assign blame when evidence is insufficient",
+        "direct dissatisfaction is handled by the system gate before Passive loading"
+      ]
+    },
+    "direction": {
+      "dimensions": [
+        "urgency_U0_U3",
+        "technical_impact",
+        "workflow_impact",
+        "communication_impact",
+        "decision_impact",
+        "complexity",
+        "risk",
+        "time_class",
+        "resources"
+      ],
+      "postures": [
+        "direct",
+        "measured",
+        "controlled",
+        "gated"
+      ],
+      "output": [
+        "current_truth",
+        "exactly_one_next_best_action",
+        "stop_or_reevaluate_conditions"
+      ],
+      "boundary": "provider_not_supervisor"
+    },
+    "user_info": {
+      "confidence": [
+        "explicit",
+        "observed",
+        "inferred",
+        "temporary"
+      ],
+      "sensitivity": [
+        "S0",
+        "S1",
+        "S2"
+      ],
+      "rules": [
+        "no_diagnosis",
+        "S2_requires_explicit_input_and_is_temporary_without_consent",
+        "knowledge_is_field_specific",
+        "never_relax_verification",
+        "share_only_minimal_audience_contract"
+      ],
+      "fixed_preferences": [
+        "natural_language_input",
+        "brief_report",
+        "meaning_max_3",
+        "details_on_request",
+        "explicit_path_permissions",
+        "mid_task_changes_expected"
+      ]
+    },
+    "dev_env": {
+      "fields": [
+        "actor",
+        "environment",
+        "connectivity",
+        "path_permissions",
+        "resources",
+        "protected_tasks",
+        "tools",
+        "network",
+        "credential_references"
+      ],
+      "evidence": [
+        "direct",
+        "indirect"
+      ],
+      "confidence": [
+        "confirmed",
+        "supported",
+        "inferred",
+        "unknown",
+        "contradicted"
+      ],
+      "replacement_routes": [
+        "direct",
+        "mirrored",
+        "delegated",
+        "user_assisted",
+        "indirect_evidence",
+        "blocked"
+      ],
+      "rules": [
+        "no_secrets",
+        "include_time_and_provenance",
+        "resource_exists_does_not_mean_available"
+      ]
+    },
+    "record": {
+      "write": "confirmed durable fact only",
+      "explanation_only": "no_file_without_explicit_request",
+      "preservation": "append_or_keep; never delete or initialize existing history"
+    },
+    "response": "return only requested context keys with provenance and confidence",
+    "permissions": {
+      "may_direct_work": false,
+      "may_change_acceptance": false,
+      "may_edit_roles": false,
+      "may_mutate_external_state": false
+    }
+  },
+  "paperthin_skills": [],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}

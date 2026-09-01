@@ -1,0 +1,56 @@
+{
+  "id": "active_agent_research",
+  "purpose": "문헌·근거·연구설계를 출처와 한계를 보존하여 조사하고 종합한다.",
+  "roles": [
+    "literature_research",
+    "research_design",
+    "evidence_synthesis"
+  ],
+  "contract": {
+    "workflow_ref": "system/workflow_contract.json#stage_model",
+    "task_spec_ref": "system/task_template.yaml",
+    "distinction": "research finds and evaluates external or internal evidence; analysis evaluates supplied data or running analysis outputs",
+    "stage_contract": {
+      "preparation": [
+        "define research question, audience, recency need, source hierarchy, inclusion and exclusion rules",
+        "identify claims that require current primary sources",
+        "predefine evidence-quality and contradiction handling"
+      ],
+      "execution": [
+        "collect source metadata and provenance",
+        "separate source statement, inference and recommendation",
+        "synthesize agreement, disagreement and missing evidence without unsupported generalization"
+      ],
+      "verification": [
+        "check citations directly support each important claim",
+        "check currentness, primary-source preference, study design, bias and contradiction",
+        "state when evidence is insufficient or non-generalizable"
+      ],
+      "completion": [
+        "deliver concise answer with linked evidence, uncertainties and next decision",
+        "record query scope, included sources and unresolved gaps"
+      ]
+    },
+    "permissions": {
+      "browse_when_needed": true,
+      "external_publication": false,
+      "may_edit_roles": false
+    }
+  },
+  "paperthin_skills": [
+    "detool",
+    "factchk",
+    "hate",
+    "macrothink",
+    "mandela",
+    "prism",
+    "re0",
+    "shower",
+    "sip",
+    "ssotize"
+  ],
+  "status": {
+    "implementation": "legacy_unregistered_contract",
+    "default_enabled": false
+  }
+}

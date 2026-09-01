@@ -1,0 +1,64 @@
+{
+  "id": "improvement_agent",
+  "purpose": "사용자 결과 보고가 끝난 뒤 프롬프트·코드·구조 개선안을 최대 3개 제안한다.",
+  "roles": [
+    "retrospective",
+    "root_pattern_extractor",
+    "improvement_proposer",
+    "supervisor_change_request_writer"
+  ],
+  "contract": {
+    "timing": "after_user_result_report",
+    "activation": {
+      "simple_success": "off_unless_requested_or_repeated",
+      "medium": "compact",
+      "complex_high_risk_failed_stopped_dissatisfied_or_repeated_steering": "full"
+    },
+    "causes": [
+      "user_input_gap",
+      "prompt_interpretation_gap",
+      "passive_context_gap",
+      "routing_gap",
+      "execution_gap",
+      "verification_gap",
+      "reporting_gap",
+      "structural_gap"
+    ],
+    "blame_gate": "user_input_gap only when only the user could decide, context could not infer, and a question would change the result",
+    "rules": [
+      "preserve_good_patterns",
+      "convert_specific_failure_to_root_pattern_and_gate",
+      "maximum_three_improvements",
+      "proposal_only",
+      "do_not_modify_code_roles_or_servers"
+    ],
+    "structural_change": "emit supervisor_change_request requiring user approval",
+    "output": [
+      "observed_pattern",
+      "root_cause",
+      "next_prompt_or_code_improvement",
+      "expected_effect",
+      "supervisor_change_request_if_needed"
+    ],
+    "permissions": {
+      "may_edit_roles": false,
+      "may_change_code": false,
+      "may_mutate_external_state": false
+    }
+  },
+  "paperthin_skills": [
+    "hate",
+    "macrothink",
+    "mandela",
+    "prism",
+    "re0",
+    "re0-memo",
+    "shower",
+    "sip"
+  ],
+  "status": {
+    "implementation": "operational_contract",
+    "default_enabled": true
+  }
+}
+
