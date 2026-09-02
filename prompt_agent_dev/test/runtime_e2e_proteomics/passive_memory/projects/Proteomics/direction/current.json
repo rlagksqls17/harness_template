@@ -1,0 +1,7 @@
+{
+  "record_id": "fixture-proteomics-direction",
+  "scope": "project",
+  "project": "Proteomics",
+  "category": "direction",
+  "original_text": "실제 Proteomics 코드와 데이터는 변경하지 않고 로컬 격리 fixture만 사용한다."
+}

@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "active_group_is_agent": false,
+  "active_agent_count": 6,
+  "role_registry_owner": "S_Supervisor_Agent",
+  "agents": [
+    {"id": "0_Prompt_Agent", "kind": "prompt", "path": "src/Prompt_Agent", "status": "active"},
+    {"id": "1_Passive_Agent", "kind": "passive", "path": "src/Passive_Agent", "status": "passive"},
+    {"id": "active_agent_communication", "kind": "active", "path": "src/Active_Agent/communication_Agent", "status": "active"},
+    {"id": "active_agent_development", "kind": "active", "path": "src/Active_Agent/development_Agent", "status": "active"},
+    {"id": "active_agent_analysis", "kind": "active", "path": "src/Active_Agent/analysis_Agent", "status": "active"},
+    {"id": "active_agent_inspection", "kind": "active", "path": "src/Active_Agent/inspection_Agent", "status": "active"},
+    {"id": "active_agent_document", "kind": "active", "path": "src/Active_Agent/document_Agent", "status": "active"},
+    {"id": "active_agent_schedule", "kind": "active", "path": "src/Active_Agent/schedule_Agent", "status": "deferred"},
+    {"id": "3_Improvement_Agent", "kind": "improvement", "path": "src/Improvement_Agent", "status": "conditional"},
+    {"id": "S_Supervisor_Agent", "kind": "supervisor", "path": "src/Supervisor_Agent", "status": "conditional"}
+  ]
+}

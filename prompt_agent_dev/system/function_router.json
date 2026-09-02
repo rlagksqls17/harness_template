@@ -1,0 +1,548 @@
+{
+  "version": "1.0.0",
+  "catalog_source": {
+    "repository": "https://github.com/rlagksqls17/paperthin",
+    "commit": "3bca079a51bcfff5dafb53d1d7f9f523d66ee317",
+    "installed_skill_count": 28
+  },
+  "selection_contract": {
+    "priority": [
+      "urgent_natural_language_steering",
+      "explicit_user_skill_name",
+      "smallest_sufficient_model_invoked_set",
+      "agent_permission_and_guard_check",
+      "execute_and_record_selection_reason"
+    ],
+    "user_only_requires_explicit_skill_name": true,
+    "skills_cannot_chain_user_only_skills": true,
+    "model_invoked_dependency_may_route_to_another_eligible_agent": true,
+    "dependency_result_returns_to_calling_agent": true,
+    "role_and_governance_override_skill_text": true,
+    "no_matching_skill_means_normal_agent_work": true
+  },
+  "invocation_modes": {
+    "model_or_user": "조건이 맞으면 Agent가 자동 선택할 수 있으며 사용자도 직접 호출할 수 있다.",
+    "user_only": "사용자가 정확한 skill 이름을 직접 지시한 경우에만 선택할 수 있다."
+  },
+  "guard_levels": {
+    "read_only": "조회와 진단만 허용한다.",
+    "authorized_scope": "현재 TaskSpec에서 사용자가 승인한 범위 안에서만 변경한다.",
+    "approval_before_mutation": "감사와 제안은 가능하지만 실제 변경 전에 사용자 승인을 받는다.",
+    "high_impact_confirmation": "commit, history rewrite, release, push, PR, 외부 상태 변경 직전에 별도 확인한다.",
+    "proposal_only": "추천이나 변경 요청만 만들고 직접 적용하지 않는다.",
+    "fresh_context_required": "현재 작업 문맥을 전달하지 않은 별도 검토 Agent가 필요하다.",
+    "paperthin_repository_only": "Paperthin 자체 저장소 구조와 release 계약이 확인된 경우에만 실행한다."
+  },
+  "skills": [
+    {
+      "skill": "re0",
+      "category": "depth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_communication",
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "반복 수정으로 산출물이 드리프트했고 현재의 깨끗한 v0가 필요할 때 대상 소유 Agent로 보낸다.",
+        "guards": [
+          "authorized_scope",
+          "역할 파일이면 Supervisor와 사용자 승인 필요"
+        ]
+      }
+    },
+    {
+      "skill": "readchk",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "사용자 요청 해석에 결과를 바꾸는 실제 갈림길이 남았는지 확인할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "맥락으로 풀리면 질문하지 않음"
+        ]
+      }
+    },
+    {
+      "skill": "aim",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "파일·repo·대화가 왔지만 요청이 얇을 때 의도를 읽고 확인할 제안으로 바꾼다.",
+        "guards": [
+          "read_only",
+          "제안 확인 전 후속 변경 금지"
+        ]
+      }
+    },
+    {
+      "skill": "modelchk",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "업무가 과도하거나 부족한 모델·추론 비용으로 실행될 위험이 있을 때 사용한다.",
+        "guards": [
+          "read_only",
+          "조언 전용이며 라우팅·모델 변경 권한 없음"
+        ]
+      }
+    },
+    {
+      "skill": "hate",
+      "category": "depth",
+      "primary_agent": "active_agent_analysis",
+      "eligible_agents": [
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 특정 계획의 치명적 반론 하나와 가장 싼 확인 실험을 요구할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "제안한 실험 실행 권한은 별도"
+        ]
+      }
+    },
+    {
+      "skill": "macrothink",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent",
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 현재 방향의 터널 비전을 여러 독립 관점으로 확인해 달라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "fresh_context_required",
+          "관점 수렴을 사실 증명으로 취급하지 않음"
+        ]
+      }
+    },
+    {
+      "skill": "feynman",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 방금 선택한 결정을 스스로 설명할 수 있는지 압박 검증해 달라고 요청할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "fresh_context_required",
+          "결정을 자동으로 변경하지 않음"
+        ]
+      }
+    },
+    {
+      "skill": "autobahn",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "안전·개인정보·보안·라이선스 인접 범위가 섞여 있을 때 위험 범위를 분리하고 안전한 나머지만 실행한다.",
+        "guards": [
+          "fresh_context_required",
+          "회색지대 제외 범위는 사용자 확인",
+          "분리된 안전 프롬프트만 실행 Agent에 전달"
+        ]
+      }
+    },
+    {
+      "skill": "reorder",
+      "category": "depth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_document",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 목록·표·catalog·registry의 순서만 한 원칙에 따라 바꾸라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "authorized_scope",
+          "항목 이동만 허용하고 추가·삭제·재작성 금지"
+        ]
+      }
+    },
+    {
+      "skill": "detool",
+      "category": "depth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_communication",
+        "active_agent_development",
+        "active_agent_document",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "장기 보존 산출물이 이식성을 주장하면서 우연한 도구·vendor·경로 이름에 묶여 있을 때 사용한다.",
+        "guards": [
+          "authorized_scope",
+          "provenance·runbook·도구 자체 설명은 구체적으로 유지"
+        ]
+      }
+    },
+    {
+      "skill": "dedash",
+      "category": "depth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_communication",
+        "active_agent_document"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 지정한 글 범위에서 em dash류를 제거하라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "authorized_scope",
+          "사용자가 지정한 prose 범위 밖으로 확대 금지"
+        ]
+      }
+    },
+    {
+      "skill": "debloat",
+      "category": "depth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_communication",
+        "active_agent_document"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 정확한 산출물을 의미 손실 없이 압축하라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "authorized_scope",
+          "규칙과 의미 삭제 금지"
+        ]
+      }
+    },
+    {
+      "skill": "shower",
+      "category": "depth",
+      "primary_agent": "active_agent_inspection",
+      "eligible_agents": [
+        "0_Prompt_Agent",
+        "active_agent_communication",
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_inspection",
+        "active_agent_document",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "긴 세션 뒤 산출물이 처음 보는 사람에게도 독립적으로 이해되는지 확인할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "fresh_context_required",
+          "진단만 하고 직접 수정하지 않음"
+        ]
+      }
+    },
+    {
+      "skill": "factchk",
+      "category": "depth",
+      "primary_agent": "active_agent_analysis",
+      "eligible_agents": [
+        "active_agent_communication",
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "현실 세계 사실을 직감으로 주장하려 하거나 외부 근거 검증이 필요한 산출물에 사용한다.",
+        "guards": [
+          "근거 출처 필요",
+          "authorized_scope",
+          "폐쇄망이면 not_verifiable 보고"
+        ]
+      }
+    },
+    {
+      "skill": "mandela",
+      "category": "depth",
+      "primary_agent": "active_agent_analysis",
+      "eligible_agents": [
+        "active_agent_development",
+        "active_agent_analysis",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "평가·metric·실험이 독립 ground truth 없이 자기 자신을 확인할 위험이 있을 때 사용한다.",
+        "guards": [
+          "read_only",
+          "평가를 직접 고치지 않고 누수와 수정안을 전달"
+        ]
+      }
+    },
+    {
+      "skill": "sip",
+      "category": "depth",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent",
+        "active_agent_communication",
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "Agent가 산출물을 만들거나 바꾼 직후 완료·commit·인계 전에 필요한 품질 기능만 조합한다.",
+        "guards": [
+          "authorized_scope",
+          "Git 변경 금지",
+          "user_only skill 연쇄 호출 금지",
+          "ssotize 실제 통합은 별도 승인"
+        ]
+      }
+    },
+    {
+      "skill": "re0-git",
+      "category": "depth",
+      "primary_agent": "active_agent_development",
+      "eligible_agents": [
+        "active_agent_development"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 이미 끝난 commit의 메시지를 현재 log 스타일로 다시 쓰라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "high_impact_confirmation",
+          "기존 commit만 대상",
+          "push된 이력은 별도 승인"
+        ]
+      }
+    },
+    {
+      "skill": "re0-release",
+      "category": "depth",
+      "primary_agent": "active_agent_development",
+      "eligible_agents": [
+        "active_agent_development"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 Paperthin 저장소 release를 직접 지시했고 해당 저장소 계약이 모두 존재할 때만 사용한다.",
+        "guards": [
+          "paperthin_repository_only",
+          "high_impact_confirmation",
+          "commit 전 확인과 tag·push 전 별도 확인"
+        ]
+      }
+    },
+    {
+      "skill": "re0-merge",
+      "category": "depth",
+      "primary_agent": "active_agent_development",
+      "eligible_agents": [
+        "active_agent_development"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 Paperthin 외부 기여 PR의 검토·반영을 직접 지시하고 maintainer 권한이 있을 때만 사용한다.",
+        "guards": [
+          "paperthin_repository_only",
+          "high_impact_confirmation",
+          "PR 승인·main 반영·push·close 권한 확인"
+        ]
+      }
+    },
+    {
+      "skill": "ssotize",
+      "category": "breadth",
+      "primary_agent": "active_agent_document",
+      "eligible_agents": [
+        "active_agent_development",
+        "active_agent_analysis",
+        "active_agent_document",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "하나의 사실이 여러 파일·플랫폼에 흩어져 중복·충돌할 때 대상 소유 Agent가 감사를 수행한다.",
+        "guards": [
+          "read_only 감사 우선",
+          "approval_before_mutation",
+          "역할·registry 대상은 Supervisor 전용"
+        ]
+      }
+    },
+    {
+      "skill": "re0-upgrade",
+      "category": "breadth",
+      "primary_agent": "S_Supervisor_Agent",
+      "eligible_agents": [
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 Paperthin 전체 catalog 갱신을 정확히 지시했을 때만 Supervisor가 audit 후 사용한다.",
+        "guards": [
+          "approval_before_mutation",
+          "skill 제거·추가·갱신과 설정 hook을 먼저 diff로 제시",
+          "외부 star를 별도 승인 없이 수행 금지"
+        ]
+      }
+    },
+    {
+      "skill": "re0-plan",
+      "category": "coil",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 Paperthin 반복 cycle의 casebook 생성을 정확히 지시했을 때만 사용한다.",
+        "guards": [
+          "paperthin_repository_only",
+          "casebook 파일 생성 범위만 승인됨"
+        ]
+      }
+    },
+    {
+      "skill": "re0-loop",
+      "category": "coil",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "복잡하고 장기적인 업무에서 실제 표면 QA와 학습을 반복해야 하며 TaskSpec 범위가 승인됐을 때 사용한다.",
+        "guards": [
+          "승인된 TaskSpec 범위 안에서만 반복",
+          "범위 확대·외부 변경·재시작·배포 시 정지",
+          "사용자 전용 skill 자동 연쇄 금지"
+        ]
+      }
+    },
+    {
+      "skill": "re0-memo",
+      "category": "coil",
+      "primary_agent": "3_Improvement_Agent",
+      "eligible_agents": [
+        "3_Improvement_Agent"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "완료·실패·불만·반복 steering이 있었던 cycle에서 다음 업무에 남길 교훈과 gate를 추출한다.",
+        "guards": [
+          "proposal_only",
+          "역할 변경은 Supervisor change request로만 전달"
+        ]
+      }
+    },
+    {
+      "skill": "re0-work",
+      "category": "coil",
+      "primary_agent": "active_agent_development",
+      "eligible_agents": [
+        "active_agent_development"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "기반이 잘못되어 검증된 계약·gate만 보존하고 v0부터 재시작해야 할 때 먼저 제안한다.",
+        "guards": [
+          "approval_before_mutation",
+          "기존 결과 삭제 금지",
+          "보존·폐기 근거를 먼저 제시"
+        ]
+      }
+    },
+    {
+      "skill": "catchup",
+      "category": "coil",
+      "primary_agent": "active_agent_inspection",
+      "eligible_agents": [
+        "0_Prompt_Agent",
+        "active_agent_inspection"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "사용자가 공백 뒤 돌아왔거나 현재 상태·변경·용어를 따라가기 어려워할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "기억이 아니라 최신 live state 근거 사용"
+        ]
+      }
+    },
+    {
+      "skill": "nba",
+      "category": "coil",
+      "primary_agent": "0_Prompt_Agent",
+      "eligible_agents": [
+        "0_Prompt_Agent",
+        "active_agent_inspection"
+      ],
+      "invocation": "model_or_user",
+      "route": {
+        "when": "사용자가 다음에 할 일을 묻거나 여러 열린 업무 사이에서 정체됐을 때 가장 효과적인 다음 행동 하나를 제안한다.",
+        "guards": [
+          "read_only",
+          "proposal_only",
+          "추천 행동의 실행 권한은 별도"
+        ]
+      }
+    },
+    {
+      "skill": "prism",
+      "category": "mesh",
+      "primary_agent": "active_agent_analysis",
+      "eligible_agents": [
+        "active_agent_analysis",
+        "3_Improvement_Agent",
+        "S_Supervisor_Agent"
+      ],
+      "invocation": "user_only",
+      "route": {
+        "when": "사용자가 하나의 산출물을 서로 다른 2~5개 실패 관점으로 독립 검토하라고 직접 요청할 때 사용한다.",
+        "guards": [
+          "read_only",
+          "fresh_context_required",
+          "수렴을 자동 PASS로 취급하지 않음"
+        ]
+      }
+    }
+  ]
+}

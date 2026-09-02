@@ -1,0 +1,10 @@
+{
+  "id": "active_agent_communication",
+  "purpose": "AI 소통, 직원 구두 소통, 직원 메일 소통을 준비·진행·검증·완료하고 Prompt Agent에 결과를 반환한다.",
+  "roles": ["ai_communication", "employee_oral_communication", "employee_email_communication"],
+  "implemented_role": "employee_email",
+  "memory_role": "프로젝트별 메일 초안과 사용자 피드백을 기록하고, 사용자가 승인한 최종 메일을 정답 예시로 구분하여 재사용한다.",
+  "passive_connection": "src/Active_Agent/passive_query.yaml",
+  "allowed": ["draft_messages", "prepare_oral_brief", "communicate_with_ai", "verify_message_against_task", "query_passive_context"],
+  "prohibited": ["actual_email_send", "invent_sender_intent", "modify_role_registry", "modify_role_definitions", "claim_completion_without_evidence"]
+}

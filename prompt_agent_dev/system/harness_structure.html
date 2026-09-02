@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>prompt_agent_dev 실행 구조</title>
+  <style>
+    body { max-width: 920px; margin: 40px auto; padding: 0 20px; font: 16px/1.65 system-ui, sans-serif; color: #17202a; }
+    h1, h2 { line-height: 1.25; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+    .step, .rule { border: 1px solid #ccd6dd; border-radius: 10px; padding: 14px; background: #f8fafb; }
+    .pass { color: #146c2e; font-weight: 700; }
+    .stop { color: #9b1c1c; font-weight: 700; }
+    code { background: #eef2f4; padding: 2px 5px; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #d8e0e5; padding: 9px; text-align: left; vertical-align: top; }
+    @media (max-width: 720px) { .flow { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>prompt_agent_dev 실제 실행 구조</h1>
+  <p>이 문서는 2026-09-03 r28의 현재 구조와 로컬 Proteomics fixture 검증 결과만 설명한다.</p>
+
+  <h2>실행 순서</h2>
+  <div class="flow">
+    <div class="step"><strong>Prompt</strong><br>자연어를 TaskSpec으로 만들고 분배한다. 직접 업무는 수행하지 않는다.</div>
+    <div class="step"><strong>Passive</strong><br>프로젝트의 direction·dev_env 등 필요한 기록을 실제 조회해 반환한다.</div>
+    <div class="step"><strong>Active</strong><br>선택된 job Agent가 별도 process에서 준비·진행·검증·완료 증거를 반환한다.</div>
+    <div class="step"><strong>Supervisor</strong><br>마지막 별도 process에서 순서·증거·안전 규칙을 확인한다.</div>
+  </div>
+  <p>실제 업무 진입점은 <code>python src/harness.py execute</code>다. <code>route</code>는 선택만 하며 실행 증거가 아니다.</p>
+
+  <h2>완료 Gate</h2>
+  <ul>
+    <li>각 단계에는 고유 invocation ID와 process ID, 시작·종료, 입력·출력 digest, 상태가 필요하다.</li>
+    <li>Active는 네 stage의 증거를 모두 반환해야 한다.</li>
+    <li>Supervisor 점수 90 미만 또는 단계 누락 시 <span class="stop">완료 보고를 차단</span>하고 1회 권한을 폐기한다.</li>
+    <li>성공한 pre-output gate만 권한을 소진하며 최종 상태는 다시 <code>INVALID</code>다.</li>
+  </ul>
+
+  <h2>최우선 안전 규칙</h2>
+  <div class="rule">
+    <strong>서버는 항상 읽기 전용</strong>이며 쓰기·동기화·업로드·프로세스·컨테이너·권한 변경을 금지한다.<br>
+    <strong>인터넷은 GitHub만 허용</strong>하며 다른 웹·API·패키지 저장소 접근을 차단한다.
+  </div>
+
+  <h2>Proteomics 격리 E2E</h2>
+  <table>
+    <tr><th>항목</th><th>결과</th></tr>
+    <tr><td>실행 순서</td><td>Prompt → Passive → Analysis → Document → Supervisor</td></tr>
+    <tr><td>독립 process</td><td>5개 Agent가 서로 다른 process ID로 완료</td></tr>
+    <tr><td>Passive</td><td>direction·dev_env 실제 조회</td></tr>
+    <tr><td>Supervisor</td><td class="pass">PASS 96</td></tr>
+    <tr><td>1회 권한</td><td>pre-output gate에서 소진, 상태 INVALID</td></tr>
+    <tr><td>안전</td><td>server_write_attempted=false, network_hosts=[]</td></tr>
+    <tr><td>실제 Proteomics/서버</td><td>변경·접속하지 않음. 대상은 하네스 내부 로컬 fixture뿐.</td></tr>
+  </table>
+  <p>세부 증거: <code>system/executions/2026-09-03-proteomics-e2e-r28-final2/workflow_evidence.json</code></p>
+
+  <h2>현재 한계</h2>
+  <p>r28의 로컬 실행기는 inspection·analysis·document fixture 작업을 지원한다. 임의의 실제 도메인 업무를 처리하는 외부 LLM Agent adapter는 아직 포함하지 않으며, 지원되지 않은 Active job은 성공으로 꾸미지 않고 실패 처리한다.</p>
+</body>
+</html>

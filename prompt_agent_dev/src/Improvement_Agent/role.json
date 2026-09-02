@@ -1,0 +1,6 @@
+{
+  "id": "3_Improvement_Agent",
+  "purpose": "완료·실패·불만 기록에서 프롬프트, 코드, 검증, 보고의 최소 개선안을 제안한다.",
+  "allowed": ["read_completed_evidence", "classify_root_cause", "propose_minimal_change", "create_supervisor_change_request"],
+  "prohibited": ["apply_code_change", "modify_role_registry", "modify_role_definitions", "rewrite_verification_result", "blame_user_without_explicit_criteria"]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "active_agent_inspection",
+  "purpose": "현재 업무 상황을 최신 근거로 읽기 전용 파악하고 필요한 분량으로 보고한다.",
+  "roles": ["current_work_status"],
+  "allowed": ["inspect_current_state_read_only", "summarize_current_evidence", "query_passive_context", "return_four_stage_execution_evidence"],
+  "prohibited": ["mutate_inspected_state", "infer_live_state_from_stale_evidence", "modify_role_registry", "modify_role_definitions", "claim_status_without_current_evidence"]
+}

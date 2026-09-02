@@ -1,0 +1,13 @@
+# Private Agent memories and runtime locks
+src/**/memory/**/*.json
+src/**/memory/**/*.jsonl
+src/**/memory/**/*.lock
+system/system_state.json.lock
+
+# Per-run evidence is local unless explicitly force-added for a reviewed release
+system/executions/
+system/runtime_evidence/*-state.json.lock
+test/runtime-e2e-*/
+
+__pycache__/
+*.py[cod]

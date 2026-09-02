@@ -1,0 +1,43 @@
+version: 1
+
+instruction: |
+  모든 Active Agent는 업무를 시작할 때 Passive 정보가 필요한지 먼저 판정한다.
+  필요하면 Prompt Agent를 거치지 않고 별도의 Passive Record Agent에 직접 질문한다.
+  답변을 받기 전에는 해당 정보를 임의로 추측하지 않는다.
+  Passive Agent가 반환한 정보 중 현재 업무에 필요한 내용만 사용한다.
+  모든 Active 결과에는 passive_usage를 반드시 포함한다.
+
+provider:
+  agent: src/Passive_Agent/record_Agent
+  contract: src/Passive_Agent/record_Agent/record.yaml
+
+passive_query:
+  query_id: null
+  requester: null
+  action: retrieve
+  project: null
+  category: null
+  question: null
+  requested_detail: short
+
+passive_response_requirement:
+  query_id: null
+  status: found
+  scope: null
+  project: null
+  category: null
+  answer: null
+  source_paths: []
+
+passive_usage:
+  status: not_required
+  reason: null
+  queries: []
+
+rules:
+  - Passive 정보가 필요 없으면 passive_usage.status를 not_required로 반환한다.
+  - Passive Agent에 질문했으면 결과가 found 또는 not_found여도 passive_usage.status를 used로 반환한다.
+  - found이면 answer만 업무에 반영하고 원본 기록 전체를 복사하지 않는다.
+  - not_found이면 내용을 추측하지 않고 생략하거나 필요한 정보가 없다고 보고한다.
+  - blocked이면 Active 업무도 blocked로 반환한다.
+  - passive_usage가 없는 Active 결과는 완료 결과가 아니다.

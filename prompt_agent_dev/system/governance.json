@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "input": {
+    "default": "natural_language",
+    "yaml_json_usage": "internal_only",
+    "urgent_steering_requires_yaml": false
+  },
+  "safety": {
+    "priority": 1,
+    "network_policy": "github_only",
+    "allowed_internet_hosts": ["github.com", "*.github.com"],
+    "non_github_internet_and_external_api_access": "forbidden",
+    "server_access": "read_only",
+    "server_mutations": "forbidden",
+    "server_write_examples": ["create", "modify", "delete", "move", "upload", "sync", "restart", "permission_change", "process_or_container_change"],
+    "server_access_when_not_needed": "do_not_connect"
+  },
+  "operation_windows_kst": {
+    "user_system": "08:00-22:00",
+    "nightly_improvement": "01:00-06:00"
+  },
+  "state_machine": {
+    "states": ["ACTIVE", "INVALID", "REBUILDING", "CANDIDATE"],
+    "nightly_transition": ["INVALID", "REBUILDING", "CANDIDATE", "ACTIVE"],
+    "activation_requires": {
+      "independent_supervisor_score_min": 90,
+      "paperthin_and_user_philosophy_score_min": 80
+    },
+    "date_change_does_not_activate": true
+  },
+  "workflow": {
+    "agent_partition": "job_only",
+    "active_agent_count": 6,
+    "stages_are_internal": true,
+    "stages": ["preparation", "execution", "verification", "completion"]
+  },
+  "runtime_execution": {
+    "entrypoint": "python src/harness.py execute",
+    "user_text_never_shell_executed": true,
+    "worker_entrypoints_allowlisted": true,
+    "subprocess_shell": false,
+    "required_order": ["0_Prompt_Agent", "1_Passive_Agent", "selected_active_agents", "S_Supervisor_Agent"],
+    "each_agent_separate_process": true,
+    "route_selection_is_not_execution": true,
+    "invocation_evidence_required": ["invocation_id", "process_id", "started_at", "ended_at", "input_digest", "output_digest", "status"],
+    "runtime_attestation": "process_local_single_use_and_evidence_digest_bound",
+    "active_stage_evidence_required": ["preparation", "execution", "verification", "completion"],
+    "supervisor_pass_required_before_output": true,
+    "missing_or_failed_step": "fail_closed_and_revoke_one_time_grant",
+    "one_time_completion": "verified_pre_output_gate_then_invalid"
+  },
+  "record_retention": {
+    "owner": "1_Passive_Agent",
+    "preserve_previous_record_versions": true,
+    "append_only_history": true,
+    "destructive_in_place_migration": false,
+    "new_schema_write": "new_version_or_history_entry",
+    "legacy_reader_required": true
+  },
+  "interaction": {
+    "mid_turn_types": ["correction", "addition", "direct_dissatisfaction"],
+    "correction": "cancel_prior_work_discard_stale_output_and_confirm_new_intent_in_one_sentence",
+    "addition": "merge_condition_into_current_task_spec",
+    "direct_dissatisfaction": "invalidate_before_agents_or_recording",
+    "urgent_steering_input": "natural_language",
+    "explanation_default_deliverable": "chat_response",
+    "explanation_order": ["identity", "execution_actor", "actual_structure"],
+    "explanation_artifact_creation": "explicit_request_only",
+    "detail_expansion": "user_request_only",
+    "all_agents_recheck_task_revision_before_output": true,
+    "routing_is_not_execution_evidence": true,
+    "report_claim_statuses": ["current_implementation", "proposed_change", "applied_change"],
+    "report_claim_statuses_must_not_be_mixed": true,
+    "implementation_inventory_requires_source_or_runtime_evidence": true,
+    "manual_inventory_requires_previous_baseline_comparison": true,
+    "silent_inventory_change_prohibited": true,
+    "one_time_user_override": {
+      "trigger": "direct_natural_language_request_for_this_task_only",
+      "allowed_base_state": "INVALID",
+      "changes_system_status": false,
+      "scope": "one_task_spec",
+      "expires_minutes": 30,
+      "consumed_by": "successful_pre_output_gate",
+      "revoked_by": ["direct_dissatisfaction", "expiry", "state_or_epoch_change"],
+      "quoted_or_policy_examples_do_not_grant": true
+    }
+  },
+  "authority": {
+    "prompt_is_coordinator_not_worker": true,
+    "role_registry_owner": "S_Supervisor_Agent",
+    "role_change_requires_user_or_nightly_delegated_approval": true,
+    "improvement_is_proposal_only": true
+  },
+  "invalidation": {
+    "gate_precedes_all_agents_and_recording": true,
+    "same_message_falls_back_to_codex_default": true,
+    "shared_state": "system/system_state.json",
+    "recheck_before_agent_output": true,
+    "store_raw_negative_message": false
+  },
+  "verification": {
+    "separate_verifier_required": true,
+    "declared_contract_is_not_runtime_pass": true,
+    "completion_requires_evidence": true
+  },
+  "report": {
+    "order": ["result", "meaning", "next_action"],
+    "details_on_request": true
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "record_id": "fixture-proteomics-dev-env",
+  "scope": "project",
+  "project": "Proteomics",
+  "category": "dev_env",
+  "original_text": "서버는 항상 읽기 전용이며 검증에 필요하지 않으면 접속하지 않는다."
+}

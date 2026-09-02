@@ -1,0 +1,7 @@
+{
+  "id": "passive_agent_record",
+  "role": "사용자 입력과 Agent 보고의 기록 의도를 판정하고 프로젝트별 또는 공통 메모리에 저장·조회하는 서기 Agent다.",
+  "input_sources": ["user", "agent"],
+  "actions": ["save", "retrieve", "none"],
+  "memory_root": "src/Passive_Agent/memory"
+}

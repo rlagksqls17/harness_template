@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "INVALID",
+  "epoch": 1,
+  "active_build_id": "2026-09-03-r28-fixture",
+  "candidate_build_id": null,
+  "invalidated_at": "2026-09-03T01:00:00+09:00",
+  "invalidation_reason": "isolated_proteomics_e2e",
+  "supervisor_score": null,
+  "paperthin_philosophy_score": null,
+  "updated_at": "2026-09-03T01:52:56+09:00",
+  "candidate_digest": null,
+  "supervisor_evidence": null,
+  "one_time_grant": null
+}
