@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "status": "INVALID",
-  "epoch": 42,
-  "active_build_id": "2026-09-03-r28",
+  "epoch": 47,
+  "active_build_id": "2026-09-04-r29",
   "candidate_build_id": null,
-  "invalidated_at": "2026-09-03T01:55:12+09:00",
+  "invalidated_at": "2026-09-04T01:30:25+09:00",
   "invalidation_reason": "user_policy_default_invalid_after_rebuild",
   "supervisor_score": null,
   "paperthin_philosophy_score": null,
-  "updated_at": "2026-09-03T01:55:12+09:00",
+  "updated_at": "2026-09-04T01:30:25+09:00",
   "candidate_digest": null,
-  "supervisor_evidence": "C:\\Users\\USER\\dev_home\\harness_template\\prompt_agent_dev\\system\\supervisor_evidence\\2026-09-03-r28.json",
+  "supervisor_evidence": "C:\\Users\\USER\\dev_home\\harness_template\\prompt_agent_dev\\system\\supervisor_evidence\\2026-09-04-r29-final.json",
   "one_time_grant": null
 }

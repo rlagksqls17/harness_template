@@ -1,0 +1,5 @@
+system/executions/** text eol=lf
+system/runtime_current.json text eol=lf
+system/runtime_evidence/*.json text eol=lf
+system/supervisor_evidence/*.json text eol=lf
+system/review_manifests/*.json text eol=lf

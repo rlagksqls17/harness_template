@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "review_date_kst": "2026-09-03",
+  "window_kst": {
+    "start": "2026-09-03T00:00:00+09:00",
+    "end_exclusive": "2026-09-04T00:00:00+09:00"
+  },
+  "coverage": {
+    "status": "complete_for_discoverable_local_codex_threads",
+    "account_wide_claim": false,
+    "user_participating_threads": 7,
+    "user_turns": 127,
+    "total_turns": 132,
+    "truncated_threads": 0,
+    "access_failures": 0,
+    "excluded": [
+      "heartbeat_only_turns",
+      "subagent_only_sessions",
+      "ChatGPT_conversations",
+      "deleted_or_unindexed_threads"
+    ],
+    "limitation": "Current tools can establish coverage only for discoverable local Codex threads, not every account conversation."
+  },
+  "discovery_proof": {
+    "method": "Codex thread listing plus full pagination to the date boundary, cross-checked against local rollout files",
+    "list_limit": 50,
+    "unavailable_hosts": 0,
+    "archived_next_cursor": null,
+    "coverage_set_sha256": "a018bd8a2351d8066f271e9e86eed18bd2d896056377099e230a8f40cca7bd8c",
+    "digest_scope": "canonical JSON of the threads array; proves the reviewed set has not changed, not that deleted or unindexed threads never existed"
+  },
+  "threads": [
+    {
+      "thread_id": "019f68ea-e23c-7c02-b39d-16bd7999af1b",
+      "title": "harness_study",
+      "first_user_turn_kst": "2026-09-03T09:38:14+09:00",
+      "last_user_turn_kst": "2026-09-03T21:27:52+09:00",
+      "user_turns": 20,
+      "total_turns": 22,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "01a06553-4276-77d0-9e51-100824635bd8",
+      "title": "WBS_KNIH_KMP_Microbiome",
+      "first_user_turn_kst": "2026-09-03T12:36:36+09:00",
+      "last_user_turn_kst": "2026-09-03T21:59:10+09:00",
+      "user_turns": 38,
+      "total_turns": 41,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "019fc56e-11c5-74a2-9adf-9276f0cac603",
+      "title": "six_modality 파이프라인 업데이트",
+      "first_user_turn_kst": "2026-09-03T14:21:18+09:00",
+      "last_user_turn_kst": "2026-09-03T17:47:35+09:00",
+      "user_turns": 2,
+      "total_turns": 2,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "019fd024-7d3e-72b1-a631-d41a2c56b0fb",
+      "title": "main_module_developer",
+      "first_user_turn_kst": "2026-09-03T13:18:58+09:00",
+      "last_user_turn_kst": "2026-09-03T21:43:18+09:00",
+      "user_turns": 34,
+      "total_turns": 34,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "01a055bc-da8d-7300-875e-a5a51bf80a48",
+      "title": "Proteomics_agent",
+      "first_user_turn_kst": "2026-09-03T13:05:58+09:00",
+      "last_user_turn_kst": "2026-09-03T19:07:28+09:00",
+      "user_turns": 28,
+      "total_turns": 28,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "019ffa89-f281-7870-be0d-34c3ba235d5f",
+      "title": "scRNA",
+      "first_user_turn_kst": "2026-09-03T16:05:18+09:00",
+      "last_user_turn_kst": "2026-09-03T17:32:05+09:00",
+      "user_turns": 4,
+      "total_turns": 4,
+      "truncated": false,
+      "access_failure": false
+    },
+    {
+      "thread_id": "019f7e23-25a8-74e3-9ef7-1da44fc7289f",
+      "title": "validation_infant_microbiome_report",
+      "first_user_turn_kst": "2026-09-03T15:54:29+09:00",
+      "last_user_turn_kst": "2026-09-03T15:54:29+09:00",
+      "user_turns": 1,
+      "total_turns": 1,
+      "truncated": false,
+      "access_failure": false
+    }
+  ],
+  "adopted_findings": [
+    "Ordinary reports remain short and evidence-labelled.",
+    "Explicit knowledge gaps select the structured learning explanation mode.",
+    "Only actual orchestrator subprocess lifecycle events drive live Agent status.",
+    "Declared schedules and observed scheduler state are displayed separately.",
+    "Nightly completion reports include HTML, evidence, validation, Supervisor, state, and Git push status."
+  ],
+  "rejected_patterns": [
+    "Answering an adjacent issue instead of the exact question.",
+    "Adding unrequested warnings or conditions after a decision is already fixed.",
+    "Inventing unobservable loading progress or Agent activity.",
+    "Treating a monitor lifecycle flag as proof of external work completion.",
+    "Using non-GitHub internet or mutating a server."
+  ]
+}

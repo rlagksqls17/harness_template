@@ -3,61 +3,126 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>prompt_agent_dev 실행 구조</title>
+  <title>prompt_agent_dev 실행 관제</title>
   <style>
-    body { max-width: 920px; margin: 40px auto; padding: 0 20px; font: 16px/1.65 system-ui, sans-serif; color: #17202a; }
-    h1, h2 { line-height: 1.25; }
-    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-    .step, .rule { border: 1px solid #ccd6dd; border-radius: 10px; padding: 14px; background: #f8fafb; }
-    .pass { color: #146c2e; font-weight: 700; }
-    .stop { color: #9b1c1c; font-weight: 700; }
-    code { background: #eef2f4; padding: 2px 5px; border-radius: 4px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #d8e0e5; padding: 9px; text-align: left; vertical-align: top; }
-    @media (max-width: 720px) { .flow { grid-template-columns: 1fr; } }
+    :root { color-scheme: dark; --bg:#06090d; --panel:#101722; --line:#263449; --text:#e7edf5; --muted:#91a1b5; --cyan:#42d7ff; --green:#63e6a5; --red:#ff7272; --amber:#ffd166; }
+    * { box-sizing: border-box; }
+    body { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, sans-serif; }
+    h1, h2 { line-height: 1.25; } h1 { margin-bottom: 4px; } h2 { margin-top: 32px; }
+    code { background:#172130; padding:2px 5px; border-radius:4px; }
+    .muted { color:var(--muted); } .ok { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--amber); }
+    .top, .flow, .facts { display:grid; gap:12px; }
+    .top { grid-template-columns:repeat(4, 1fr); margin:20px 0; }
+    .flow { grid-template-columns:repeat(4, 1fr); }
+    .facts { grid-template-columns:repeat(2, 1fr); }
+    .card { border:1px solid var(--line); border-radius:12px; padding:14px; background:var(--panel); }
+    .card strong { display:block; margin-bottom:5px; }
+    .agent { position:relative; min-height:150px; }
+    .agent::before { content:""; display:block; width:12px; height:12px; border-radius:50%; margin-bottom:10px; background:#59677a; box-shadow:0 0 0 transparent; }
+    .agent.running::before { background:var(--cyan); box-shadow:0 0 18px var(--cyan); animation:pulse 1s infinite alternate; }
+    .agent.completed::before { background:var(--green); box-shadow:0 0 12px #26865e; }
+    .agent.failed::before { background:var(--red); box-shadow:0 0 12px #993f3f; }
+    .agent .state { color:var(--muted); font-size:13px; }
+    .agent .meta { margin-top:8px; color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; } th, td { padding:9px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top; }
+    @keyframes pulse { to { transform:scale(1.35); opacity:.6; } }
+    @media (max-width:780px) { .top, .flow, .facts { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-  <h1>prompt_agent_dev 실제 실행 구조</h1>
-  <p>이 문서는 2026-09-03 r28의 현재 구조와 로컬 Proteomics fixture 검증 결과만 설명한다.</p>
+  <h1>prompt_agent_dev 실행 관제</h1>
+  <div class="muted">r29 · 실제 subprocess lifecycle 기반 · 외부 의존성 없음</div>
 
-  <h2>실행 순서</h2>
-  <div class="flow">
-    <div class="step"><strong>Prompt</strong><br>자연어를 TaskSpec으로 만들고 분배한다. 직접 업무는 수행하지 않는다.</div>
-    <div class="step"><strong>Passive</strong><br>프로젝트의 direction·dev_env 등 필요한 기록을 실제 조회해 반환한다.</div>
-    <div class="step"><strong>Active</strong><br>선택된 job Agent가 별도 process에서 준비·진행·검증·완료 증거를 반환한다.</div>
-    <div class="step"><strong>Supervisor</strong><br>마지막 별도 process에서 순서·증거·안전 규칙을 확인한다.</div>
+  <div class="top">
+    <div class="card"><strong>Run</strong><span id="run-id">아직 연결되지 않음</span></div>
+    <div class="card"><strong>전체 상태</strong><span id="overall">not_started</span></div>
+    <div class="card"><strong>마지막 갱신</strong><span id="updated">-</span></div>
+    <div class="card"><strong>관제 연결</strong><span id="connection" class="warn">offline snapshot</span></div>
   </div>
-  <p>실제 업무 진입점은 <code>python src/harness.py execute</code>다. <code>route</code>는 선택만 하며 실행 증거가 아니다.</p>
+
+  <h2>실제 실행 흐름</h2>
+  <div id="flow" class="flow">
+    <div class="card agent" data-prefix="0_Prompt_Agent"><strong>Prompt</strong><span class="state">대기</span><div class="meta">자연어 → TaskSpec·분배</div></div>
+    <div class="card agent" data-prefix="1_Passive_Agent"><strong>Passive</strong><span class="state">대기</span><div class="meta">필요 기록 조회·제공</div></div>
+    <div class="card agent" data-prefix="active_agent_"><strong>Active</strong><span class="state">대기</span><div class="meta">job별 실제 작업·4단계 증거</div></div>
+    <div class="card agent" data-prefix="S_Supervisor_Agent"><strong>Supervisor</strong><span class="state">대기</span><div class="meta">순서·증거·안전 검증</div></div>
+  </div>
+  <p class="muted">점멸은 하네스가 실제로 시작한 로컬 subprocess만 뜻합니다. 외부 업무 완료·서버 변경·사용자 승인을 뜻하지 않습니다.</p>
+
+  <h2>예약과 상태의 구분</h2>
+  <div class="facts">
+    <div class="card"><strong>선언된 야간 개발 시간</strong><span id="declared-window">01:00–06:00 KST</span></div>
+    <div class="card"><strong>실제 scheduler 연결</strong><span id="scheduler">external_not_connected</span><div class="muted">연결 증거가 없으면 다음 실행 시각을 추측하지 않습니다.</div></div>
+  </div>
 
   <h2>완료 Gate</h2>
-  <ul>
-    <li>각 단계에는 고유 invocation ID와 process ID, 시작·종료, 입력·출력 digest, 상태가 필요하다.</li>
-    <li>Active는 네 stage의 증거를 모두 반환해야 한다.</li>
-    <li>Supervisor 점수 90 미만 또는 단계 누락 시 <span class="stop">완료 보고를 차단</span>하고 1회 권한을 폐기한다.</li>
-    <li>성공한 pre-output gate만 권한을 소진하며 최종 상태는 다시 <code>INVALID</code>다.</li>
-  </ul>
+  <table>
+    <tr><th>검사</th><th>통과 조건</th></tr>
+    <tr><td>독립 실행</td><td>각 Agent의 고유 invocation ID·process ID·시작·종료 receipt</td></tr>
+    <tr><td>이벤트 무결성</td><td><code>lifecycle.jsonl</code> SHA-256 hash chain과 최종 evidence digest 일치</td></tr>
+    <tr><td>Active</td><td>준비·진행·검증·완료 네 단계 증거</td></tr>
+    <tr><td>Supervisor</td><td>90점 이상, critical bypass 0, 출력 전에 PASS</td></tr>
+    <tr><td>최종 상태</td><td>1회 권한 소진 후 <code>INVALID</code></td></tr>
+  </table>
 
-  <h2>최우선 안전 규칙</h2>
-  <div class="rule">
-    <strong>서버는 항상 읽기 전용</strong>이며 쓰기·동기화·업로드·프로세스·컨테이너·권한 변경을 금지한다.<br>
-    <strong>인터넷은 GitHub만 허용</strong>하며 다른 웹·API·패키지 저장소 접근을 차단한다.
+  <h2>보고 방식</h2>
+  <div class="card">일반 보고는 결과·중요한 의미·다음 행동만 짧게 씁니다. 사용자가 개념을 모른다고 밝히면 대상과 목적 → 용어 → 예시 → 실패 경계 → 이유 → 짧은 요약 순으로 학습형 설명을 사용합니다.</div>
+
+  <h2>안전 및 현재 한계</h2>
+  <div class="facts">
+    <div class="card"><strong>최우선 규칙</strong>서버는 읽기 전용이고, 인터넷은 GitHub만 허용합니다.</div>
+    <div class="card"><strong>현재 한계</strong>로컬 실행기는 inspection·analysis·document fixture를 지원합니다. 임의의 실제 도메인 업무용 외부 LLM adapter는 아직 없습니다.</div>
   </div>
 
-  <h2>Proteomics 격리 E2E</h2>
-  <table>
-    <tr><th>항목</th><th>결과</th></tr>
-    <tr><td>실행 순서</td><td>Prompt → Passive → Analysis → Document → Supervisor</td></tr>
-    <tr><td>독립 process</td><td>5개 Agent가 서로 다른 process ID로 완료</td></tr>
-    <tr><td>Passive</td><td>direction·dev_env 실제 조회</td></tr>
-    <tr><td>Supervisor</td><td class="pass">PASS 96</td></tr>
-    <tr><td>1회 권한</td><td>pre-output gate에서 소진, 상태 INVALID</td></tr>
-    <tr><td>안전</td><td>server_write_attempted=false, network_hosts=[]</td></tr>
-    <tr><td>실제 Proteomics/서버</td><td>변경·접속하지 않음. 대상은 하네스 내부 로컬 fixture뿐.</td></tr>
-  </table>
-  <p>세부 증거: <code>system/executions/2026-09-03-proteomics-e2e-r28-final2/workflow_evidence.json</code></p>
+  <h2>최근 검증 근거</h2>
+  <div class="card" id="evidence">r29: <code>system/executions/2026-09-04-proteomics-e2e-r29/workflow_evidence.json</code> · runtime Supervisor PASS 96</div>
 
-  <h2>현재 한계</h2>
-  <p>r28의 로컬 실행기는 inspection·analysis·document fixture 작업을 지원한다. 임의의 실제 도메인 업무를 처리하는 외부 LLM Agent adapter는 아직 포함하지 않으며, 지원되지 않은 Active job은 성공으로 꾸미지 않고 실패 처리한다.</p>
+  <h2>r28 → r29 변경 이력</h2>
+  <table>
+    <tr><th>r28</th><th>r29</th></tr>
+    <tr><td>완료 receipt 중심</td><td>실제 subprocess 시작·완료 lifecycle, revision, SHA-256 hash chain 추가</td></tr>
+    <tr><td>정적 구조 설명</td><td>localhost GET-only 실시간 관제와 evidence 연결</td></tr>
+    <tr><td>설명 최대 4문장</td><td>평소에는 유지하고, 명시적 지식 공백에서만 학습형 보고</td></tr>
+    <tr><td>일별 회고 요약</td><td>7개 로컬 Codex 작업·127 사용자 turn의 범위와 한계를 manifest로 보존</td></tr>
+  </table>
+  <p class="muted">회고 근거: <code>system/review_manifests/2026-09-03-all-codex.json</code> · 독립 Supervisor 결과는 실제 증거 파일과 <code>system_state.json</code>이 연결된 뒤에만 PASS로 보고합니다.</p>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const groups = [...document.querySelectorAll('.agent')];
+    function render(snapshot) {
+      $('run-id').textContent = snapshot.run_id || '-';
+      $('overall').textContent = snapshot.overall_status || 'not_started';
+      $('overall').className = snapshot.overall_status === 'completed' ? 'ok' : snapshot.overall_status === 'failed' ? 'bad' : 'warn';
+      $('updated').textContent = snapshot.updated_at || '-';
+      const schedule = snapshot.schedule || {};
+      $('declared-window').textContent = schedule.declared_nightly_window_kst || '01:00-06:00';
+      $('scheduler').textContent = schedule.actual_scheduler || 'external_not_connected';
+      const agents = snapshot.agents || {};
+      for (const card of groups) {
+        const prefix = card.dataset.prefix;
+        const matches = Object.entries(agents).filter(([name]) => prefix.endsWith('_') ? name.startsWith(prefix) : name === prefix);
+        card.classList.remove('running', 'completed', 'failed');
+        if (!matches.length) { card.querySelector('.state').textContent = '대기'; continue; }
+        const states = matches.map(([, value]) => value.status);
+        const state = states.includes('running') ? 'running' : states.includes('failed') ? 'failed' : states.every((value) => value === 'completed') ? 'completed' : states[states.length - 1];
+        if (['running','completed','failed'].includes(state)) card.classList.add(state);
+        card.querySelector('.state').textContent = matches.map(([name, value]) => `${name}: ${value.status}`).join(' · ');
+        card.querySelector('.meta').textContent = matches.map(([, value]) => `${value.invocation_id || '-'} / PID ${value.process_id || '-'}`).join(' · ');
+      }
+      if (snapshot.evidence) $('evidence').textContent = `${snapshot.evidence.path} · sha256 ${snapshot.evidence.sha256}`;
+    }
+    async function refresh() {
+      try {
+        const response = await fetch('/api/snapshot', {cache:'no-store'});
+        if (!response.ok) throw new Error('snapshot unavailable');
+        render(await response.json());
+        $('connection').textContent = 'localhost live'; $('connection').className = 'ok';
+      } catch (_) {
+        $('connection').textContent = 'offline snapshot'; $('connection').className = 'warn';
+      }
+    }
+    refresh(); setInterval(refresh, 1000);
+  </script>
 </body>
 </html>

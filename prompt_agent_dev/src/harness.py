@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import hmac
+import http.server
 import json
 import os
 import re
@@ -25,6 +26,8 @@ ROUTER_PATH = ROOT / "system" / "function_router.json"
 REGISTRY_PATH = ROOT / "system" / "role_registry.json"
 DEFAULT_PASSIVE_MEMORY_ROOT = ROOT / "src" / "Passive_Agent" / "memory"
 DEFAULT_RUNTIME_ROOT = ROOT / "system" / "executions"
+DEFAULT_RUNTIME_STATUS_PATH = ROOT / "system" / "runtime_current.json"
+DEFAULT_DASHBOARD_PATH = ROOT / "system" / "harness_structure.html"
 KST = timezone(timedelta(hours=9))
 _THREAD_LOCKS_GUARD = threading.Lock()
 _THREAD_LOCKS: dict[str, threading.RLock] = {}
@@ -805,11 +808,13 @@ def candidate_content_paths(root: Path | None = None) -> list[Path]:
     """Return every governed contract/runtime file bound into Supervisor evidence."""
     base = root or ROOT
     fixed = [
+        base / ".gitattributes",
         base / "AGENTS.md",
         base / "role.json",
         base / "system" / "governance.json",
         base / "system" / "role_registry.json",
         base / "system" / "function_router.json",
+        base / "system" / "harness_structure.html",
         base / "third_party" / "paperthin" / "paperthin.lock.json",
         base / "third_party" / "paperthin" / "LICENSE",
         base / "third_party" / "paperthin" / "NOTICE",
@@ -1525,6 +1530,7 @@ def explanation_request(text: str) -> bool:
     value = normalize(mask_quoted_and_blockquoted(text))
     asks_explanation = re.search(
         r"(?:정확히\s*)?(?:뭐야|뭔데|뭔지|뭐냐|뭐냐니까|무엇|정체|뜻|의미|개념)|"
+        r"무슨\s*(?:명령어|뜻|의미|개념)|"
         r"(?:어떻게|어디서|누가).{0,20}(?:동작|실행|사용|돌아가)|"
         r"(?:구조|원리|역할|차이|비교).{0,20}(?:설명|알려|말해|궁금|물어)|"
         r"(?:구축|실행|사용|설치|동작).{0,20}(?:되는|하는)\s*(?:거야|건가|건지)|"
@@ -1562,13 +1568,46 @@ def response_contract(text: str) -> dict[str, Any]:
     if not explanation_request(text):
         return {
             "mode": "task_result",
+            "answer_scope": "exact_user_request_only",
             "artifact_creation": "requested_scope_only",
             "detail_expansion": "requested_scope_only",
         }
     one_sentence = bool(re.search(r"(?:한\s*문장|한\s*줄|핵심만)", value))
     concise = one_sentence or bool(re.search(r"(?:간단|간략|짧게)", value))
+    learning_requested = bool(
+        re.search(
+            r"(?:개념(?:을|은|이)?\s*(?:잘\s*)?(?:모르|몰라)|"
+            r"(?:이해|감)(?:가|이)?\s*(?:잘\s*)?안\s*(?:돼|되|와)|"
+            r"처음부터.{0,12}(?:설명|알려)|쉽게.{0,12}(?:설명|알려)|"
+            r"원리(?:를|가)?\s*(?:설명|알려|뭐|무엇)|"
+            r"무슨\s*(?:명령어|뜻|의미)|"
+            r"왜.{0,20}(?:맞는|맞아|되는|그런)\s*(?:지|거|이유)|"
+            r"차이(?:를|가)?\s*(?:모르|뭐|무엇))",
+            value,
+        )
+    )
+    if learning_requested and not concise:
+        return {
+            "mode": "learning_explanation",
+            "answer_scope": "exact_user_question_then_required_concept_boundary",
+            "deliverable": "chat_response",
+            "abstraction_order": [
+                "object_and_purpose",
+                "terms",
+                "concrete_example",
+                "failure_boundary",
+                "rationale",
+                "short_summary",
+            ],
+            "comparison": "only_if_needed_for_concept_boundary",
+            "max_sentences": 10,
+            "artifact_creation": "forbidden_unless_explicitly_requested",
+            "detail_expansion": "enough_to_close_stated_knowledge_gap",
+            "repeat_prior_explanation": False,
+        }
     return {
         "mode": "explanation",
+        "answer_scope": "exact_user_question_only",
         "deliverable": "chat_response",
         "abstraction_order": ["identity", "execution_actor", "actual_structure"],
         "comparison": "only_if_requested",
@@ -2388,6 +2427,191 @@ def atomic_write_text(path: Path, value: str) -> None:
             temporary_path.unlink()
 
 
+def _runtime_event_hash(event: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        event,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def initialize_runtime_status(
+    run_id: str,
+    status_path: Path,
+    public_status_path: Path | None,
+) -> dict[str, Any]:
+    """Create an honest local snapshot before any worker is started."""
+    timestamp = datetime.now(KST).isoformat(timespec="milliseconds")
+    value = {
+        "schema_version": 1,
+        "run_id": run_id,
+        "revision": 1,
+        "overall_status": "running",
+        "started_at": timestamp,
+        "updated_at": timestamp,
+        "current_agent": None,
+        "agents": {},
+        "last_event_hash": None,
+        "evidence": None,
+        "schedule": {
+            "declared_nightly_window_kst": "01:00-06:00",
+            "actual_scheduler": "external_not_connected",
+            "next_run": None,
+        },
+        "truth_boundary": {
+            "indicates": "actual_local_orchestrator_lifecycle_events",
+            "does_not_prove": [
+                "external_system_work_completed",
+                "server_state_changed",
+                "user_acceptance",
+            ],
+        },
+    }
+    atomic_write_json(status_path, value)
+    if public_status_path is not None:
+        atomic_write_json(public_status_path, value)
+    return value
+
+
+def record_runtime_lifecycle(
+    *,
+    status_path: Path,
+    public_status_path: Path | None,
+    lifecycle_path: Path,
+    run_id: str,
+    sequence: int,
+    agent: str,
+    invocation_id: str,
+    process_id: int,
+    phase: str,
+    status: str,
+) -> dict[str, Any]:
+    """Append a hash-linked worker event and project it into the live snapshot."""
+    runtime = load_json(status_path)
+    if runtime.get("run_id") != run_id:
+        raise ValueError("runtime_monitor_run_id_mismatch")
+    previous_hash = runtime.get("last_event_hash")
+    event = {
+        "schema_version": 1,
+        "run_id": run_id,
+        "sequence": sequence,
+        "agent": agent,
+        "invocation_id": invocation_id,
+        "process_id": process_id,
+        "phase": phase,
+        "status": status,
+        "timestamp": datetime.now(KST).isoformat(timespec="milliseconds"),
+        "previous_event_hash": previous_hash,
+    }
+    event["event_hash"] = _runtime_event_hash(event)
+    append_jsonl(lifecycle_path, event)
+    agents = runtime.setdefault("agents", {})
+    entry = agents.setdefault(agent, {})
+    entry.update(
+        {
+            "sequence": sequence,
+            "invocation_id": invocation_id,
+            "process_id": process_id,
+            "status": status,
+            "last_phase": phase,
+            "updated_at": event["timestamp"],
+        }
+    )
+    runtime["revision"] = int(runtime.get("revision", 0)) + 1
+    runtime["updated_at"] = event["timestamp"]
+    runtime["current_agent"] = agent if phase == "started" else None
+    runtime["last_event_hash"] = event["event_hash"]
+    atomic_write_json(status_path, runtime)
+    if public_status_path is not None:
+        atomic_write_json(public_status_path, runtime)
+    return event
+
+
+def finish_runtime_status(
+    status_path: Path,
+    public_status_path: Path | None,
+    *,
+    status: str,
+    evidence_path: Path | None = None,
+    reason: str | None = None,
+) -> dict[str, Any]:
+    runtime = load_json(status_path)
+    timestamp = datetime.now(KST).isoformat(timespec="milliseconds")
+    runtime["revision"] = int(runtime.get("revision", 0)) + 1
+    runtime["overall_status"] = status
+    runtime["current_agent"] = None
+    runtime["updated_at"] = timestamp
+    runtime["ended_at"] = timestamp
+    runtime["reason"] = reason
+    if evidence_path is not None and evidence_path.is_file():
+        runtime["evidence"] = {
+            "path": str(evidence_path.resolve()),
+            "sha256": hashlib.sha256(evidence_path.read_bytes()).hexdigest(),
+        }
+    atomic_write_json(status_path, runtime)
+    if public_status_path is not None:
+        atomic_write_json(public_status_path, runtime)
+    return runtime
+
+
+class RuntimeMonitorHandler(http.server.BaseHTTPRequestHandler):
+    """Read-only localhost view over the current runtime snapshot."""
+
+    status_path = DEFAULT_RUNTIME_STATUS_PATH
+    dashboard_path = DEFAULT_DASHBOARD_PATH
+
+    def _send(self, status: int, content_type: str, payload: bytes) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def do_GET(self) -> None:  # noqa: N802 - stdlib handler API
+        route = self.path.split("?", 1)[0]
+        if route == "/api/snapshot":
+            try:
+                payload = self.status_path.read_bytes()
+            except OSError:
+                payload = json.dumps(
+                    {"schema_version": 1, "overall_status": "not_started"},
+                    ensure_ascii=False,
+                ).encode("utf-8")
+            self._send(200, "application/json; charset=utf-8", payload)
+            return
+        if route in {"/", "/index.html"}:
+            self._send(200, "text/html; charset=utf-8", self.dashboard_path.read_bytes())
+            return
+        self._send(404, "text/plain; charset=utf-8", b"not found")
+
+    def do_POST(self) -> None:  # noqa: N802 - stdlib handler API
+        self._send(405, "text/plain; charset=utf-8", b"read only")
+
+    do_PUT = do_POST
+    do_PATCH = do_POST
+    do_DELETE = do_POST
+
+    def log_message(self, format: str, *args: Any) -> None:
+        return
+
+
+def serve_runtime_monitor(host: str, port: int) -> None:
+    if host != "127.0.0.1":
+        raise ValueError("runtime_monitor_must_bind_loopback")
+    if not 0 <= port <= 65535:
+        raise ValueError("runtime_monitor_port_invalid")
+    server = http.server.ThreadingHTTPServer((host, port), RuntimeMonitorHandler)
+    try:
+        server.serve_forever(poll_interval=0.25)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+
+
 def compact_worker_summary(agent: str, result: dict[str, Any]) -> dict[str, Any]:
     if agent == "0_Prompt_Agent":
         route = result.get("route", {})
@@ -2430,6 +2654,10 @@ def invoke_agent_process(
     *,
     state_path: Path,
     events_path: Path,
+    lifecycle_path: Path,
+    runtime_status_path: Path,
+    public_status_path: Path | None,
+    run_id: str,
     one_time_token: str | None,
     sequence: int,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -2463,6 +2691,23 @@ def invoke_agent_process(
         shell=False,
     )
     try:
+        record_runtime_lifecycle(
+            status_path=runtime_status_path,
+            public_status_path=public_status_path,
+            lifecycle_path=lifecycle_path,
+            run_id=run_id,
+            sequence=sequence,
+            agent=agent,
+            invocation_id=invocation_id,
+            process_id=process.pid,
+            phase="started",
+            status="running",
+        )
+    except (OSError, ValueError, json.JSONDecodeError):
+        process.kill()
+        process.communicate()
+        raise
+    try:
         stdout, stderr = process.communicate(encoded_input.decode("utf-8"), timeout=60)
     except subprocess.TimeoutExpired:
         process.kill()
@@ -2494,6 +2739,18 @@ def invoke_agent_process(
         "output_summary": summary,
     }
     append_jsonl(events_path, receipt)
+    record_runtime_lifecycle(
+        status_path=runtime_status_path,
+        public_status_path=public_status_path,
+        lifecycle_path=lifecycle_path,
+        run_id=run_id,
+        sequence=sequence,
+        agent=agent,
+        invocation_id=invocation_id,
+        process_id=process.pid,
+        phase="completed",
+        status=result.get("status", "failed"),
+    )
     return result, receipt
 
 
@@ -2983,6 +3240,55 @@ def validate_execution_evidence(
         reasons.append("execution_events_receipts_mismatch")
     if evidence.get("events_sha256") != hashlib.sha256(events_bytes).hexdigest():
         reasons.append("execution_events_digest_mismatch")
+    lifecycle_path = evidence_path.parent / "lifecycle.jsonl"
+    try:
+        lifecycle_bytes = lifecycle_path.read_bytes()
+        lifecycle = [
+            json.loads(line)
+            for line in lifecycle_bytes.decode("utf-8").splitlines()
+            if line.strip()
+        ]
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        lifecycle = []
+        lifecycle_bytes = b""
+        reasons.append("execution_lifecycle_unreadable")
+    if evidence.get("lifecycle_sha256") != hashlib.sha256(lifecycle_bytes).hexdigest():
+        reasons.append("execution_lifecycle_digest_mismatch")
+    if len(lifecycle) != len(receipts) * 2:
+        reasons.append("execution_lifecycle_event_count_invalid")
+    expected_previous_hash: str | None = None
+    for index, event in enumerate(lifecycle):
+        if not isinstance(event, dict):
+            reasons.append("execution_lifecycle_event_invalid")
+            continue
+        supplied_hash = event.get("event_hash")
+        unhashed = dict(event)
+        unhashed.pop("event_hash", None)
+        if event.get("previous_event_hash") != expected_previous_hash:
+            reasons.append("execution_lifecycle_chain_broken")
+        if not isinstance(supplied_hash, str) or not hmac.compare_digest(
+            supplied_hash,
+            _runtime_event_hash(unhashed),
+        ):
+            reasons.append("execution_lifecycle_hash_invalid")
+        expected_previous_hash = supplied_hash if isinstance(supplied_hash, str) else None
+        receipt_index = index // 2
+        if receipt_index >= len(receipts):
+            continue
+        receipt = receipts[receipt_index]
+        expected_phase = "started" if index % 2 == 0 else "completed"
+        expected_status = "running" if expected_phase == "started" else receipt.get("status")
+        if (
+            event.get("run_id") != evidence.get("run_id")
+            or event.get("sequence") != receipt.get("sequence")
+            or event.get("agent") != receipt.get("agent")
+            or event.get("invocation_id") != receipt.get("invocation_id")
+            or event.get("process_id") != receipt.get("process_id")
+            or event.get("phase") != expected_phase
+            or event.get("status") != expected_status
+            or parse_evidence_time(event.get("timestamp")) is None
+        ):
+            reasons.append("execution_lifecycle_receipt_mismatch")
     if one_time_token is not None:
         supplied_signature = evidence.get("signature")
         expected_signature = execution_evidence_signature(evidence, one_time_token)
@@ -3028,6 +3334,14 @@ def run_task_chain(
         return {"status": "blocked", "reason": "run_root_outside_harness", "safety": safety}
     resolved_run_root.mkdir(parents=True, exist_ok=False)
     events_path = resolved_run_root / "events.jsonl"
+    lifecycle_path = resolved_run_root / "lifecycle.jsonl"
+    runtime_status_path = resolved_run_root / "runtime_status.json"
+    public_status_path = (
+        DEFAULT_RUNTIME_STATUS_PATH
+        if path_is_within(resolved_run_root, DEFAULT_RUNTIME_ROOT)
+        else None
+    )
+    initialize_runtime_status(resolved_run_root.name, runtime_status_path, public_status_path)
     receipts: list[dict[str, Any]] = []
     token: str | None = None
     sequence = 1
@@ -3037,6 +3351,10 @@ def run_task_chain(
             {"text": text, "now": current.isoformat()},
             state_path=state_path,
             events_path=events_path,
+            lifecycle_path=lifecycle_path,
+            runtime_status_path=runtime_status_path,
+            public_status_path=public_status_path,
+            run_id=resolved_run_root.name,
             one_time_token=None,
             sequence=sequence,
         )
@@ -3064,6 +3382,10 @@ def run_task_chain(
             },
             state_path=state_path,
             events_path=events_path,
+            lifecycle_path=lifecycle_path,
+            runtime_status_path=runtime_status_path,
+            public_status_path=public_status_path,
+            run_id=resolved_run_root.name,
             one_time_token=token,
             sequence=sequence,
         )
@@ -3088,6 +3410,10 @@ def run_task_chain(
                 },
                 state_path=state_path,
                 events_path=events_path,
+                lifecycle_path=lifecycle_path,
+                runtime_status_path=runtime_status_path,
+                public_status_path=public_status_path,
+                run_id=resolved_run_root.name,
                 one_time_token=token,
                 sequence=sequence,
             )
@@ -3100,6 +3426,10 @@ def run_task_chain(
             {"epoch": route["epoch"], "task_spec": task_spec, "receipts": receipts, "safety": safety},
             state_path=state_path,
             events_path=events_path,
+            lifecycle_path=lifecycle_path,
+            runtime_status_path=runtime_status_path,
+            public_status_path=public_status_path,
+            run_id=resolved_run_root.name,
             one_time_token=token,
             sequence=sequence,
         )
@@ -3116,6 +3446,7 @@ def run_task_chain(
             "invocations": receipts,
             "safety": safety,
             "events_sha256": hashlib.sha256(events_path.read_bytes()).hexdigest(),
+            "lifecycle_sha256": hashlib.sha256(lifecycle_path.read_bytes()).hexdigest(),
             "runtime_attestation_digest": hashlib.sha256(
                 runtime_attestation.encode("utf-8")
             ).hexdigest(),
@@ -3137,6 +3468,12 @@ def run_task_chain(
         )
         if not gate["allowed"]:
             raise ValueError("pre_output_gate_rejected:" + ",".join(gate["reasons"]))
+        finish_runtime_status(
+            runtime_status_path,
+            public_status_path,
+            status="completed",
+            evidence_path=evidence_path,
+        )
         return {
             "status": "completed",
             "mode": route.get("mode"),
@@ -3155,6 +3492,15 @@ def run_task_chain(
         }
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
         revoke_one_time_grant(state_path, token)
+        try:
+            finish_runtime_status(
+                runtime_status_path,
+                public_status_path,
+                status="failed",
+                reason=str(exc),
+            )
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
         return {
             "status": "failed",
             "reason": str(exc),
@@ -3172,7 +3518,7 @@ def response_output_gate(
     """Enforce concise explanation and no-repeat constraints before reporting."""
     contract = task_spec.get("response_contract", {})
     reasons: list[str] = []
-    if contract.get("mode") == "explanation":
+    if contract.get("mode") in {"explanation", "learning_explanation"}:
         current = normalize(output_text)
         previous = normalize(previous_output_text or "")
         canonical_current = re.sub(r"[^0-9a-z가-힣]+", "", re.sub(r"이며", "이고", current))
@@ -3512,6 +3858,9 @@ def build_parser() -> argparse.ArgumentParser:
     execute.add_argument("--fixture-append")
     worker = sub.add_parser("worker")
     worker.add_argument("--agent", required=True)
+    monitor = sub.add_parser("monitor")
+    monitor.add_argument("--host", default="127.0.0.1")
+    monitor.add_argument("--port", type=int, default=8766)
 
     sub.add_parser("state")
     output_gate = sub.add_parser("pre-output-gate")
@@ -3575,6 +3924,9 @@ def main() -> int:
         elif args.command == "worker":
             payload = json.loads(sys.stdin.read() or "{}")
             result = run_agent_worker(args.agent, payload, state_path)
+        elif args.command == "monitor":
+            serve_runtime_monitor(args.host, args.port)
+            return 0
         elif args.command == "state":
             result = load_json(state_path)
         elif args.command == "pre-output-gate":

@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-09-04-proteomics-e2e-r29",
+  "task_revision": 1,
+  "task_spec_digest": "98fb5ba94c60c0ec953eb14a709fa3ad1f25ca9bfba3759d9dda624c6debd057",
+  "invocations": [
+    {
+      "sequence": 1,
+      "agent": "0_Prompt_Agent",
+      "invocation_id": "inv-01-b31d23cfb60c0f2a",
+      "process_id": 12740,
+      "started_at": "2026-09-04T01:16:01.989+09:00",
+      "ended_at": "2026-09-04T01:16:02.609+09:00",
+      "exit_code": 0,
+      "input_digest": "a7d4b93330aed125577471a7c8e4069851a0065c7ed20b7ca3153a2d5ab3101a",
+      "output_digest": "e8f5198ef6e1020da673721b2feefc5879a51939bcafb06de4ac31b08e47aec1",
+      "status": "completed",
+      "output_summary": {
+        "status": "completed",
+        "mode": "custom_agent_system_one_time",
+        "task_revision": 1,
+        "task_spec_digest": "98fb5ba94c60c0ec953eb14a709fa3ad1f25ca9bfba3759d9dda624c6debd057",
+        "active_agents": [
+          "active_agent_analysis",
+          "active_agent_document"
+        ],
+        "passive_elements": [
+          "direction",
+          "dev_env"
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "agent": "1_Passive_Agent",
+      "invocation_id": "inv-02-c3f416fbfb2b4401",
+      "process_id": 7228,
+      "started_at": "2026-09-04T01:16:02.660+09:00",
+      "ended_at": "2026-09-04T01:16:03.087+09:00",
+      "exit_code": 0,
+      "input_digest": "7d6bf753f3b0a11f49efe616fe5d7cf7c33b5f9d553d3e422c76d60aad47bf5a",
+      "output_digest": "c46f9afcf2287338480829a5898a57d36d21dd82fba8b00bbac38a9524ef7cec",
+      "status": "completed",
+      "output_summary": {
+        "status": "completed",
+        "elements": [
+          "direction",
+          "dev_env"
+        ],
+        "context_statuses": {
+          "direction": "found",
+          "dev_env": "found"
+        },
+        "source_count": 2
+      }
+    },
+    {
+      "sequence": 3,
+      "agent": "active_agent_analysis",
+      "invocation_id": "inv-03-f4b3b76de442ffc3",
+      "process_id": 9032,
+      "started_at": "2026-09-04T01:16:03.108+09:00",
+      "ended_at": "2026-09-04T01:16:03.461+09:00",
+      "exit_code": 0,
+      "input_digest": "8c26f4e5b8e2a9e18538dc290bb9ad8f3682a4d8f49c5d846e61e5a695cc3e99",
+      "output_digest": "846d8b26f4b28d82664ff2699eda183060261ba7fc80aec644caaa8105f3eedc",
+      "status": "completed",
+      "output_summary": {
+        "status": "completed",
+        "stages": [
+          {
+            "stage": "preparation",
+            "status": "completed",
+            "evidence": "16821250caef3c2c15a7cbc813c6fb1835d19d7abd9fda939aeab0c2de20c55a"
+          },
+          {
+            "stage": "execution",
+            "status": "completed",
+            "evidence": {
+              "line_count": 3,
+              "byte_count": 83
+            }
+          },
+          {
+            "stage": "verification",
+            "status": "completed",
+            "evidence": "16821250caef3c2c15a7cbc813c6fb1835d19d7abd9fda939aeab0c2de20c55a"
+          },
+          {
+            "stage": "completion",
+            "status": "completed",
+            "evidence": "authorization_rechecked"
+          }
+        ],
+        "artifact": null,
+        "verification": {
+          "source_sha256": "16821250caef3c2c15a7cbc813c6fb1835d19d7abd9fda939aeab0c2de20c55a",
+          "server_writes": [],
+          "network_hosts": []
+        },
+        "reason": null
+      }
+    },
+    {
+      "sequence": 4,
+      "agent": "active_agent_document",
+      "invocation_id": "inv-04-aacd42ec693e8550",
+      "process_id": 30164,
+      "started_at": "2026-09-04T01:16:03.481+09:00",
+      "ended_at": "2026-09-04T01:16:04.057+09:00",
+      "exit_code": 0,
+      "input_digest": "e277575fd68035fb0106437eea0ac80814b066a710e68a790c6ca769516fc98a",
+      "output_digest": "032043c99e087586b1b6a6af63a87b2e116852a8db981025d40a87f885f7f4a0",
+      "status": "completed",
+      "output_summary": {
+        "status": "completed",
+        "stages": [
+          {
+            "stage": "preparation",
+            "status": "completed",
+            "evidence": "16821250caef3c2c15a7cbc813c6fb1835d19d7abd9fda939aeab0c2de20c55a"
+          },
+          {
+            "stage": "execution",
+            "status": "completed",
+            "evidence": "92c0a273d09851cb131218636b6af5074c975838d09241349e865a6fb1b35f3a"
+          },
+          {
+            "stage": "verification",
+            "status": "completed",
+            "evidence": "reread_match"
+          },
+          {
+            "stage": "completion",
+            "status": "completed",
+            "evidence": "authorization_rechecked"
+          }
+        ],
+        "artifact": {
+          "path": "C:\\Users\\USER\\dev_home\\harness_template\\prompt_agent_dev\\system\\executions\\2026-09-04-proteomics-e2e-r29\\artifacts\\proteomics_qc_plan.md",
+          "sha256": "92c0a273d09851cb131218636b6af5074c975838d09241349e865a6fb1b35f3a",
+          "verified": true
+        },
+        "verification": {
+          "source_sha256": "16821250caef3c2c15a7cbc813c6fb1835d19d7abd9fda939aeab0c2de20c55a",
+          "server_writes": [],
+          "network_hosts": []
+        },
+        "reason": null
+      }
+    },
+    {
+      "sequence": 5,
+      "agent": "S_Supervisor_Agent",
+      "invocation_id": "inv-05-650bfe001cb48914",
+      "process_id": 25740,
+      "started_at": "2026-09-04T01:16:04.105+09:00",
+      "ended_at": "2026-09-04T01:16:04.503+09:00",
+      "exit_code": 0,
+      "input_digest": "8ed6e5aa44e3900fce689a0b207fad09a582198efdda9e1b9e9886925885a7d1",
+      "output_digest": "9ce637db74f12fc93584b9269fdf63505654349961053e8901c0cee2faa1222a",
+      "status": "completed",
+      "output_summary": {
+        "status": "completed",
+        "decision": "PASS",
+        "score": 96,
+        "reasons": []
+      }
+    }
+  ],
+  "safety": {
+    "allowed": true,
+    "reasons": [],
+    "network_hosts": [],
+    "network_policy": "github_only",
+    "server_access": "read_only",
+    "server_write_attempted": false
+  },
+  "events_sha256": "5694197f43a267ea2159f861514b0f88483f0dd0cbb94de7f5fc733efd2c9ed9",
+  "lifecycle_sha256": "8d0d5dd13caaf3b386227fcba9f7e9b288dac192d55858b2250b87d5989845e2",
+  "runtime_attestation_digest": "6272b293da6d73d03830ea15fcfdf2b6cc848173551ed40c09203edd08331803",
+  "created_at": "2026-09-04T01:16:04+09:00",
+  "signature": "4d94b3df603acc06e03d5a93c0fc3d7667662c6ac3e3e6da9fa4ccceae7f4161"
+}

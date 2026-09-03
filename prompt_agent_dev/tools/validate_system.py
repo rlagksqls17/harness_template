@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import sys
 import tempfile
@@ -186,9 +187,40 @@ def main() -> int:
         runtime_execution["runtime_attestation"] == "process_local_single_use_and_evidence_digest_bound",
         "runtime_attestation_single_use",
     )
+    runtime_monitor = governance["runtime_monitor"]
+    require(runtime_monitor["source"] == "actual_orchestrator_lifecycle_events", "runtime_monitor_actual_event_source")
+    require(runtime_monitor["bind"] == "127.0.0.1", "runtime_monitor_loopback_only")
+    require(runtime_monitor["read_only_get"] is True and runtime_monitor["write_endpoints"] is False, "runtime_monitor_read_only")
+    require(runtime_monitor["schedule_display"]["actual_scheduler"] == "external_not_connected", "runtime_monitor_schedule_truth_boundary")
+    dashboard_source = (ROOT / "system" / "harness_structure.html").read_text(encoding="utf-8")
+    require("/api/snapshot" in dashboard_source and "setInterval(refresh, 1000)" in dashboard_source, "runtime_dashboard_live_snapshot_poll")
+    require("https://" not in dashboard_source and "http://" not in dashboard_source, "runtime_dashboard_no_external_dependency")
+    require("외부 업무 완료·서버 변경·사용자 승인을 뜻하지 않습니다" in dashboard_source, "runtime_dashboard_truth_boundary_visible")
+    require("독립 Supervisor PASS" not in dashboard_source, "runtime_dashboard_no_preapproval_supervisor_claim")
+    review_manifest = load_json(ROOT / "system" / "review_manifests" / "2026-09-03-all-codex.json")
+    require(review_manifest["coverage"]["user_participating_threads"] == 7, "nightly_review_manifest_threads=7")
+    require(review_manifest["coverage"]["user_turns"] == 127, "nightly_review_manifest_user_turns=127")
+    require(review_manifest["coverage"]["truncated_threads"] == 0, "nightly_review_manifest_no_truncation")
+    require(review_manifest["coverage"]["access_failures"] == 0, "nightly_review_manifest_no_access_failure")
+    require(review_manifest["coverage"]["account_wide_claim"] is False, "nightly_review_manifest_honest_scope")
+    reviewed_threads_digest = hashlib.sha256(
+        json.dumps(
+            review_manifest["threads"],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    require(
+        reviewed_threads_digest == review_manifest["discovery_proof"]["coverage_set_sha256"],
+        "nightly_review_manifest_coverage_digest",
+    )
+    require(governance["report"]["answer_scope"] == "exact_question_before_adjacent_context", "report_exact_question_first")
+    require(governance["report"]["scheduled_run_always_reports"] is True, "scheduled_run_always_reports")
     prompt_contract = (ROOT / "src" / "Prompt_Agent" / "prompt.yaml").read_text(encoding="utf-8")
     require("답변 완료만으로 프로젝트별 대화 기록이나 prompt/answer 파일을 만들지 않는다" in prompt_contract, "no_automatic_prompt_answer_files")
     require("정체, 실행 주체, 실제 구조 순서" in prompt_contract, "explanation_abstraction_contract")
+    require("대상과 목적, 핵심 용어, 실제 예시, 실패하거나 헷갈리는 경계, 그 이유, 짧은 요약 순" in prompt_contract, "learning_explanation_contract")
     require("해당 TaskSpec 하나에만 일회용 권한" in prompt_contract, "prompt_one_time_override_contract")
     require(state["status"] in {"ACTIVE", "INVALID", "REBUILDING", "CANDIDATE"}, "runtime_state_valid")
     if state["status"] == "INVALID":
@@ -217,18 +249,41 @@ def main() -> int:
     require((ROOT / "third_party" / "paperthin" / "LICENSE").is_file(), "paperthin_license_present")
 
     harness = load_harness()
+    for text in (
+        "IP 개념을 모르겠어. 처음부터 설명해줘",
+        "이 명령어가 무슨 뜻인지 쉽게 설명해줘",
+        "(Invoke-RestMethod api.ipify.org).Trim() 지금 이게 무슨 명령어인데?",
+        "이 값이 왜 맞는지 원리부터 알려줘",
+    ):
+        learning = harness.response_contract(text)
+        require(learning["mode"] == "learning_explanation", f"learning_report_selected:{text}")
+        require(learning["answer_scope"] == "exact_user_question_then_required_concept_boundary", f"learning_report_exact_scope:{text}")
+        require(
+            learning["abstraction_order"]
+            == ["object_and_purpose", "terms", "concrete_example", "failure_boundary", "rationale", "short_summary"],
+            f"learning_report_order:{text}",
+        )
+    concise_learning = harness.response_contract("개념을 모르겠어. 핵심만 설명해줘")
+    require(concise_learning["mode"] == "explanation", "explicit_concise_overrides_learning_mode")
+    ordinary = harness.response_contract("현재 구조를 설명해줘")
+    require(ordinary["mode"] == "explanation", "ordinary_report_remains_concise")
+    require(ordinary["answer_scope"] == "exact_user_question_only", "ordinary_report_exact_question_only")
     governed_digest_paths = {
         path.relative_to(ROOT).as_posix() for path in harness.candidate_content_paths(ROOT)
     }
     for relative in (
+        ".gitattributes",
         "third_party/paperthin/LICENSE",
         "third_party/paperthin/NOTICE",
         "src/Prompt_Agent/prompt.yaml",
         "src/Passive_Agent/record_Agent/record.yaml",
         "src/Active_Agent/passive_query.yaml",
         "src/Active_Agent/communication_Agent/employee_email.yaml",
+        "system/harness_structure.html",
     ):
         require(relative in governed_digest_paths, f"candidate_digest_includes:{relative}")
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    require("system/executions/** text eol=lf" in attributes, "runtime_evidence_git_eol_stable")
     require(harness.is_negative_feedback("이상해. 왜 멋대로 이렇게 했어?"), "negative_feedback_detected")
     require(harness.is_negative_feedback("그건 아니야"), "short_rebuke_detected")
     require(not harness.is_negative_feedback("negative control 결과를 분석해줘"), "negative_control_not_triggered")
@@ -2401,6 +2456,32 @@ def main() -> int:
                 runtime_result["execution_truth"]["runtime_execution_claimed"] is True,
                 "proteomics_runtime_execution_proven",
             )
+            lifecycle_path = runtime_path / "run" / "lifecycle.jsonl"
+            lifecycle_events = [
+                json.loads(line)
+                for line in lifecycle_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            require(
+                len(lifecycle_events) == len(runtime_result["invocation_order"]) * 2,
+                "proteomics_runtime_lifecycle_start_end_pairs",
+            )
+            require(
+                [event["phase"] for event in lifecycle_events] == ["started", "completed"] * len(runtime_result["invocation_order"]),
+                "proteomics_runtime_lifecycle_order",
+            )
+            previous_event_hash = None
+            for event in lifecycle_events:
+                supplied_event_hash = event["event_hash"]
+                unhashed_event = dict(event)
+                unhashed_event.pop("event_hash")
+                require(event["previous_event_hash"] == previous_event_hash, "proteomics_runtime_lifecycle_previous_hash")
+                require(supplied_event_hash == harness._runtime_event_hash(unhashed_event), "proteomics_runtime_lifecycle_hash")
+                previous_event_hash = supplied_event_hash
+            runtime_snapshot = load_json(runtime_path / "run" / "runtime_status.json")
+            require(runtime_snapshot["overall_status"] == "completed", "proteomics_runtime_snapshot_completed")
+            require(runtime_snapshot["current_agent"] is None, "proteomics_runtime_snapshot_no_false_active")
+            require(runtime_snapshot["evidence"]["path"] == runtime_result["evidence_path"], "proteomics_runtime_snapshot_evidence_linked")
             failed_state_path = runtime_path / "failed-system-state.json"
             harness.atomic_write_json(failed_state_path, invalid_one_time_state)
             failed_runtime = harness.run_task_chain(
@@ -2418,12 +2499,19 @@ def main() -> int:
                 load_json(failed_state_path).get("one_time_grant") is None,
                 "proteomics_runtime_failure_revokes_grant",
             )
+            require(load_json(runtime_path / "failed-run" / "runtime_status.json")["overall_status"] == "failed", "failed_runtime_snapshot_not_completed")
         fixture_after = {
             path.relative_to(fixture_root).as_posix(): path.read_bytes()
             for path in fixture_root.rglob("*")
             if path.is_file()
         }
         require(fixture_after == fixture_before, "proteomics_source_fixture_unchanged")
+        loopback_guarded = False
+        try:
+            harness.serve_runtime_monitor("0.0.0.0", 8766)
+        except ValueError:
+            loopback_guarded = True
+        require(loopback_guarded, "runtime_monitor_non_loopback_rejected")
 
         empty_begin_failed = False
         empty_begin_path = Path(temporary) / "empty-begin" / "system_state.json"

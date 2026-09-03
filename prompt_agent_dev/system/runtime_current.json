@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-09-04-proteomics-e2e-r29",
+  "revision": 12,
+  "overall_status": "completed",
+  "started_at": "2026-09-04T01:16:01.984+09:00",
+  "updated_at": "2026-09-04T01:16:04.562+09:00",
+  "current_agent": null,
+  "agents": {
+    "0_Prompt_Agent": {
+      "sequence": 1,
+      "invocation_id": "inv-01-b31d23cfb60c0f2a",
+      "process_id": 12740,
+      "status": "completed",
+      "last_phase": "completed",
+      "updated_at": "2026-09-04T01:16:02.646+09:00"
+    },
+    "1_Passive_Agent": {
+      "sequence": 2,
+      "invocation_id": "inv-02-c3f416fbfb2b4401",
+      "process_id": 7228,
+      "status": "completed",
+      "last_phase": "completed",
+      "updated_at": "2026-09-04T01:16:03.100+09:00"
+    },
+    "active_agent_analysis": {
+      "sequence": 3,
+      "invocation_id": "inv-03-f4b3b76de442ffc3",
+      "process_id": 9032,
+      "status": "completed",
+      "last_phase": "completed",
+      "updated_at": "2026-09-04T01:16:03.474+09:00"
+    },
+    "active_agent_document": {
+      "sequence": 4,
+      "invocation_id": "inv-04-aacd42ec693e8550",
+      "process_id": 30164,
+      "status": "completed",
+      "last_phase": "completed",
+      "updated_at": "2026-09-04T01:16:04.084+09:00"
+    },
+    "S_Supervisor_Agent": {
+      "sequence": 5,
+      "invocation_id": "inv-05-650bfe001cb48914",
+      "process_id": 25740,
+      "status": "completed",
+      "last_phase": "completed",
+      "updated_at": "2026-09-04T01:16:04.516+09:00"
+    }
+  },
+  "last_event_hash": "83322cd9dc6ae1caabb937d0dc6cc6cd1d52fc73d97f42d051f8a5e49a0f6800",
+  "evidence": {
+    "path": "C:\\Users\\USER\\dev_home\\harness_template\\prompt_agent_dev\\system\\executions\\2026-09-04-proteomics-e2e-r29\\workflow_evidence.json",
+    "sha256": "11272d35eb098938219e755f3fbbccc9e006f2a44d02d020476c8eac44bca94f"
+  },
+  "schedule": {
+    "declared_nightly_window_kst": "01:00-06:00",
+    "actual_scheduler": "external_not_connected",
+    "next_run": null
+  },
+  "truth_boundary": {
+    "indicates": "actual_local_orchestrator_lifecycle_events",
+    "does_not_prove": [
+      "external_system_work_completed",
+      "server_state_changed",
+      "user_acceptance"
+    ]
+  },
+  "ended_at": "2026-09-04T01:16:04.562+09:00",
+  "reason": null
+}

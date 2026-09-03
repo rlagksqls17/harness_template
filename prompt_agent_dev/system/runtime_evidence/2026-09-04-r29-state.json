@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "status": "INVALID",
+  "epoch": 42,
+  "active_build_id": "2026-09-03-r28",
+  "candidate_build_id": null,
+  "invalidated_at": "2026-09-04T01:00:00+09:00",
+  "invalidation_reason": "isolated_runtime_validation",
+  "supervisor_score": null,
+  "paperthin_philosophy_score": null,
+  "updated_at": "2026-09-04T01:16:04+09:00",
+  "candidate_digest": null,
+  "supervisor_evidence": null,
+  "one_time_grant": null
+}
